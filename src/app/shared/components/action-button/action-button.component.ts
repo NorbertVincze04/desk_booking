@@ -27,9 +27,7 @@ export class ActionButtonComponent {
   @Output() action = new EventEmitter<void>();
 
   get displayLabel(): string {
-    return this.isLoading
-      ? this.config.loadingLabel || 'Processing...'
-      : this.config.label;
+    return this.isLoading ? this.config.loadingLabel || '' : this.config.label;
   }
 
   onAction() {

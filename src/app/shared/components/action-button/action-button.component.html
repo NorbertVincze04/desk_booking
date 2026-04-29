@@ -3,6 +3,8 @@
   [disabled]="config.disabled || isLoading"
   [ngClass]="'btn-' + (config.variant || 'primary')"
 >
+  <span *ngIf="isLoading" class="spinner"></span>
+
   <ng-container
     *ngIf="icon; then iconTemplate; else labelTemplate"
   ></ng-container>

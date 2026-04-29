@@ -16,13 +16,13 @@ export class MockInterceptService implements HttpInterceptor {
   private mockBookings: MockBooking[] = [
     // {
     //   id: '1',
-    //   user_name: 'Michael Jordan',
+    //   user_name: 'User Example',
     //   booking_date: '04/08/2026',
     //   booking_desk: 'A1',
     // },
     // {
     //   id: '2',
-    //   user_name: 'Jane Smith',
+    //   user_name: 'Another User',
     //   booking_date: '04/08/2026',
     //   booking_desk: 'B2',
     // },

@@ -4,8 +4,6 @@ import {
   BehaviorSubject,
   Observable,
   Subject,
-  ReplaySubject,
-  AsyncSubject,
   tap,
   map,
   catchError,
@@ -34,15 +32,6 @@ export class BookingService {
   private notificationSubject = new Subject<Notification>();
   notifications$ = this.notificationSubject.asObservable();
 
-  private notificationHistorySubject = new ReplaySubject<Notification>(5);
-  notificationHistory$ = this.notificationHistorySubject.asObservable();
-
-  private bookingOperationSubject = new AsyncSubject<{
-    success: boolean;
-    message: string;
-  }>();
-  bookingOperation$ = this.bookingOperationSubject.asObservable();
-
   private validationSubject = new BehaviorSubject<ValidationStatus>({
     valid: true,
     message: null,
@@ -65,7 +54,7 @@ export class BookingService {
     return this.selectedDateSubject.value;
   }
 
-  private apiUrl = 'https://your-backend-api.com/api';
+  private apiUrl = 'https://backend-api.com/api';
 
   constructor(private http: HttpClient) {}
 
@@ -89,7 +78,6 @@ export class BookingService {
             message: 'Failed to load bookings',
           };
           this.notificationSubject.next(notification);
-          this.notificationHistorySubject.next(notification);
           return of([]);
         }),
       )
@@ -148,11 +136,6 @@ export class BookingService {
             type: 'success',
             message: `Desk ${booking.deskId} booked successfully`,
           });
-        } else {
-          this.notificationSubject.next({
-            type: 'error',
-            message: 'Failed to book desk',
-          });
         }
       }),
       catchError(() => {
@@ -200,11 +183,6 @@ export class BookingService {
             type: 'success',
             message: `Booking for desk ${bookingToRemove.deskId} withdrawn`,
           });
-        } else {
-          this.notificationSubject.next({
-            type: 'error',
-            message: 'Failed to withdraw booking',
-          });
         }
       }),
       catchError(() => {
@@ -215,79 +193,6 @@ export class BookingService {
         return of(false);
       }),
       map((response: any) => response.success),
-    );
-  }
-
-  createBookingWithAsyncFeedback(booking: Booking): Observable<{
-    success: boolean;
-    message: string;
-  }> {
-    const command = {
-      table_name: 'BOOKINGS_TABLE',
-      operation: 'CREATE',
-      data: {
-        user_name: booking.user,
-        booking_date: booking.date.toLocaleDateString(),
-        booking_desk: booking.deskId,
-      },
-    };
-
-    return this.execute(command).pipe(
-      tap((response: any) => {
-        if (response.success) {
-          const newBooking = {
-            id: response.payload.id,
-            user: booking.user,
-            deskId: booking.deskId,
-            date: booking.date,
-          };
-          this.bookingsSubject.next([...this.bookings, newBooking]);
-          const notification: Notification = {
-            type: 'success',
-            message: `Desk ${booking.deskId} booked successfully`,
-          };
-          this.notificationSubject.next(notification);
-          this.notificationHistorySubject.next(notification);
-
-          this.bookingOperationSubject.next({
-            success: true,
-            message: `Desk ${booking.deskId} booked successfully`,
-          });
-        } else {
-          const notification: Notification = {
-            type: 'error',
-            message: 'Failed to book desk',
-          };
-          this.notificationSubject.next(notification);
-          this.notificationHistorySubject.next(notification);
-
-          this.bookingOperationSubject.next({
-            success: false,
-            message: 'Failed to book desk',
-          });
-        }
-      }),
-      catchError((error) => {
-        const notification: Notification = {
-          type: 'error',
-          message: 'Booking operation failed',
-        };
-        this.notificationSubject.next(notification);
-        this.notificationHistorySubject.next(notification);
-
-        this.bookingOperationSubject.next({
-          success: false,
-          message: 'Booking operation failed',
-        });
-        return of(null);
-      }),
-      tap(() => {
-        this.bookingOperationSubject.complete();
-      }),
-      map((response: any) => ({
-        success: response?.success || false,
-        message: response?.message || 'Operation status unknown',
-      })),
     );
   }
 

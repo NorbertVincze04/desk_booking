@@ -44,6 +44,8 @@ export class TopBarComponent implements OnInit, OnDestroy {
   constructor(public bookingService: BookingService) {}
 
   ngOnInit() {
+    this.bookingService.loadBookings();
+
     this.subscription.add(
       this.bookingService.selectedDesk$.subscribe((desk) => {
         this.currentDesk = desk;
@@ -102,9 +104,9 @@ export class TopBarComponent implements OnInit, OnDestroy {
     this.bookedDesk = booking ? booking.deskId : null;
   }
 
-  get buttonLabel(): string {
-    return this.bookedDesk ? 'Withdraw booking' : 'Book Now';
-  }
+  // get buttonLabel(): string {
+  //   return this.bookedDesk ? 'Withdraw booking' : 'Book Now';
+  // }
 
   get isButtonDisabled(): boolean {
     if (this.isLoading) return true;
@@ -131,7 +133,7 @@ export class TopBarComponent implements OnInit, OnDestroy {
     }, 3000);
   }
 
-  bookNow() {
+  buttonAction() {
     this.isLoading = true;
 
     if (this.bookedDesk && this.currentDate) {

@@ -67,11 +67,9 @@ export class BookingService {
 
   private apiUrl = 'https://your-backend-api.com/api';
 
-  constructor(private http: HttpClient) {
-    this.loadBookings();
-  }
+  constructor(private http: HttpClient) {}
 
-  private loadBookings() {
+  loadBookings() {
     this.execute({ table_name: 'BOOKINGS_TABLE', operation: 'READ' })
       .pipe(
         map((response: any) => {

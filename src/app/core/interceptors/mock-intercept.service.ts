@@ -41,15 +41,17 @@ export class MockInterceptService implements HttpInterceptor {
     return next.handle(req);
   }
 
+  private saveToStorage() {
+    localStorage.setItem('mockBookings', JSON.stringify(this.mockBookings));
+  }
+
   private handleBookingsTable(body: any): Observable<HttpEvent<any>> {
     let responsePayload: any;
 
     switch (body.operation) {
       case 'READ':
         const mockBookings = localStorage.getItem('mockBookings');
-        if (mockBookings) {
-          this.mockBookings = JSON.parse(mockBookings);
-        }
+        this.mockBookings = mockBookings ? JSON.parse(mockBookings) : [];
         responsePayload = {
           success: true,
           payload: this.mockBookings,
@@ -64,7 +66,7 @@ export class MockInterceptService implements HttpInterceptor {
           booking_desk: body.data.booking_desk,
         };
         this.mockBookings.push(newBooking);
-        localStorage.setItem('mockBookings', JSON.stringify(this.mockBookings));
+        this.saveToStorage();
         responsePayload = {
           success: true,
           payload: newBooking,
@@ -75,6 +77,7 @@ export class MockInterceptService implements HttpInterceptor {
         const index = this.mockBookings.findIndex((b) => b.id === body.data.id);
         if (index !== -1) {
           this.mockBookings.splice(index, 1);
+          this.saveToStorage();
           responsePayload = {
             success: true,
             payload: { deleted: true },

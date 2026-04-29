@@ -1,3 +1,8 @@
+::ng-deep .p-datepicker-calendar {
+  height: 600px;
+  width: 600px;
+}
+
 ::ng-deep .p-datepicker-day-selected {
   background-color: rgb(66, 66, 66) !important;
 }
@@ -21,7 +26,6 @@
 
 ::ng-deep .p-datepicker-day-cell {
   padding: 25px !important;
-  padding-bottom: 40px !important;
 }
 
 ::ng-deep .p-datepicker-weekday-cell {
@@ -47,7 +51,7 @@ form {
 }
 
 app-error-notification {
-  width: 100%;
+  width: auto;
   margin-top: auto;
   display: block;
   flex-shrink: 0;
@@ -65,15 +69,20 @@ p-datepicker {
 
 @media (max-width: 1400px) {
   ::ng-deep .p-datepicker-day-cell {
-    padding: 12px !important;
+    padding: 10px !important;
   }
 
   ::ng-deep .p-datepicker-weekday-cell {
-    padding: 12px !important;
+    padding: 10px !important;
   }
 
   ::ng-deep .p-datepicker-panel {
     padding-top: 0 !important;
     padding-bottom: 0 !important;
+  }
+
+  ::ng-deep .p-datepicker-calendar {
+    height: 400px;
+    width: 436px;
   }
 }

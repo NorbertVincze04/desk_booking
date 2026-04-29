@@ -11,23 +11,9 @@ import {
   catchError,
 } from 'rxjs';
 import { of } from 'rxjs';
-
-export interface Booking {
-  id: string;
-  user: string;
-  deskId: string;
-  date: Date;
-}
-
-export interface Notification {
-  type: 'success' | 'error' | 'warning';
-  message: string;
-}
-
-export interface ValidationStatus {
-  valid: boolean;
-  message: string | null;
-}
+import { Booking } from '../models/booking';
+import { Notification } from '../models/notification';
+import { ValidationStatus } from '../models/validation-status';
 
 @Injectable({
   providedIn: 'root',

@@ -7,13 +7,7 @@ import {
   HttpResponse,
 } from '@angular/common/http';
 import { Observable, of, delay } from 'rxjs';
-
-interface MockBooking {
-  id: string;
-  user_name: string;
-  booking_date: string;
-  booking_desk: string;
-}
+import { MockBooking } from '../models/mock-booking';
 
 @Injectable({
   providedIn: 'root',

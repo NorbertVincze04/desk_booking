@@ -2,11 +2,7 @@ import { Component } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { BookingService } from '../../../core/services/booking.service';
 import { ErrorConfig } from '../error-notification/error-notification.component';
-
-export interface ValidationStatus {
-  valid: boolean;
-  message: string | null;
-}
+import { ValidationStatus } from '../../../core/models/validation-status';
 
 @Component({
   selector: 'app-calendar',

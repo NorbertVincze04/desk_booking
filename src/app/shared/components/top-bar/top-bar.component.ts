@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { BookingService } from '../../../core/services/booking.service';
-import { Subscription } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { ActionConfig } from '../action-button/action-button.component';
 import { ErrorConfig } from '../error-notification/error-notification.component';
 
@@ -39,56 +39,57 @@ export class TopBarComponent implements OnInit, OnDestroy {
     duration: 3000,
   };
 
-  private subscription = new Subscription();
+  private destroy$ = new Subject<void>();
 
   constructor(public bookingService: BookingService) {}
 
   ngOnInit() {
     this.bookingService.loadBookings();
 
-    this.subscription.add(
-      this.bookingService.selectedDesk$.subscribe((desk) => {
+    this.bookingService.selectedDesk$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((desk) => {
         this.currentDesk = desk;
-      }),
-    );
+      });
 
-    this.subscription.add(
-      this.bookingService.selectedDate$.subscribe((date) => {
+    this.bookingService.selectedDate$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((date) => {
         this.currentDate = date;
         this.updateBookedDesk();
-      }),
-    );
+      });
 
-    this.subscription.add(
-      this.bookingService.bookings$.subscribe(() => {
+    this.bookingService.bookings$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
         this.updateBookedDesk();
-      }),
-    );
+      });
 
-    this.subscription.add(
-      this.bookingService.user$.subscribe((user) => {
+    this.bookingService.user$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((user) => {
         this.currentUser = user;
         this.updateBookedDesk();
-      }),
-    );
+      });
 
-    this.subscription.add(
-      this.bookingService.notifications$.subscribe((notification) => {
+    this.bookingService.notifications$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((notification) => {
         if (notification.type === 'error') {
           this.showError(notification.message);
         }
-      }),
-    );
+      });
 
-    this.subscription.add(
-      this.bookingService.validation$.subscribe((validation) => {
+    this.bookingService.validation$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((validation) => {
         this.dateValid = validation.valid;
-      }),
-    );
+      });
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private updateBookedDesk() {

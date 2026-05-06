@@ -8,6 +8,7 @@ import {
 } from '@angular/common/http';
 import { Observable, of, delay } from 'rxjs';
 import { MockBooking } from '../models/mock-booking';
+import { environment } from '../../../environments/envrionment';
 
 @Injectable({
   providedIn: 'root',
@@ -42,7 +43,10 @@ export class MockInterceptService implements HttpInterceptor {
   }
 
   private saveToStorage() {
-    localStorage.setItem('mockBookings', JSON.stringify(this.mockBookings));
+    localStorage.setItem(
+      environment.BOOKING_STORAGE,
+      JSON.stringify(this.mockBookings),
+    );
   }
 
   private handleBookingsTable(body: any): Observable<HttpEvent<any>> {
@@ -50,7 +54,7 @@ export class MockInterceptService implements HttpInterceptor {
 
     switch (body.operation) {
       case 'READ':
-        const mockBookings = localStorage.getItem('mockBookings');
+        const mockBookings = localStorage.getItem(environment.BOOKING_STORAGE);
         this.mockBookings = mockBookings ? JSON.parse(mockBookings) : [];
         responsePayload = {
           success: true,

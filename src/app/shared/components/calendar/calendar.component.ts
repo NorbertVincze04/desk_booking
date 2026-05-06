@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { BookingService } from '../../../core/services/booking.service';
 import { ErrorConfig } from '../error-notification/error-notification.component';
@@ -9,15 +9,15 @@ import { ValidationStatus } from '../../../core/models/validation-status';
   templateUrl: './calendar.component.html',
   styleUrl: './calendar.component.css',
 })
-export class CalendarComponent {
-  selectedDate: Date | null = null;
+export class CalendarComponent implements OnInit {
+  selectedDate: Date | null = new Date();
   minDate: Date = new Date();
   limitDate: Date = this.calculateLimitDays(new Date(), 3);
   disabledDays: number[] = [0, 6];
 
   private validationSubject = new BehaviorSubject<ValidationStatus>({
     valid: true,
-    message: 'Please select a date',
+    message: null,
   });
   public validation$ = this.validationSubject.asObservable();
 
@@ -33,7 +33,21 @@ export class CalendarComponent {
     };
   }
 
+  ngOnInit(): void {
+    this.initialValidation(this.selectedDate);
+  }
+
   constructor(private bookingService: BookingService) {}
+
+  initialValidation(selectedDate: Date | null) {
+    if (selectedDate === null) {
+      const validation = { valid: true, message: 'Please select a date' };
+      this.validationSubject.next(validation);
+    }
+    const validation = this.validationSubject.value;
+    this.bookingService.selectDate(selectedDate);
+    this.bookingService.setValidation(validation);
+  }
 
   onDateChange(selectedDate: any) {
     const dateValue = selectedDate as Date | null;

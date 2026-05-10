@@ -13,6 +13,7 @@ import { routes } from '../app-routes';
 import { CalendarComponent } from './components/calendar/calendar.component';
 import { TableComponent } from './components/table/table.component';
 import { MapComponent } from './components/map/map.component';
+import { AuthDivComponent } from './ui-wrappers/auth-div/auth-div.component';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { MapComponent } from './components/map/map.component';
     ErrorNotificationComponent,
     CalendarComponent,
     TableComponent,
+    AuthDivComponent,
   ],
   imports: [
     CommonModule,
@@ -42,6 +44,7 @@ import { MapComponent } from './components/map/map.component';
     ErrorNotificationComponent,
     CalendarComponent,
     TableComponent,
+    AuthDivComponent,
   ],
 })
 export class SharedModule {}

@@ -2,15 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/envrionment';
-
-interface UserRecord {
-  fullName: string;
-  email: string;
-  password: string;
-  secretKey: string;
-  type: string;
-  token?: string;
-}
+import { UserRecord } from '../models/user-record';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +12,6 @@ export class AuthService {
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor() {
-    // Load user from localStorage on init if any
     const storedUser = localStorage.getItem(environment.CURRENT_USER_STORAGE);
     if (storedUser) {
       this.currentUserSubject.next(JSON.parse(storedUser));
@@ -48,8 +39,8 @@ export class AuthService {
           fullName: userData.fullName,
           email: userData.email,
           password: this.encrypt(userData.password),
-          secretKey: userData.secretKey, // Not encrypted as per user request
-          type: 'user', // Default type, can be extended to support roles
+          secretKey: userData.secretKey,
+          type: 'user',
         };
         users.push(newUser);
         localStorage.setItem(environment.USERS_STORAGE, JSON.stringify(users));
@@ -68,7 +59,6 @@ export class AuthService {
         return user;
       }),
       tap((user) => {
-        // Generate session token
         const token = this.generateToken();
         const userWithToken: UserRecord = {
           ...user,

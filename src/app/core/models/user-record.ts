@@ -5,4 +5,5 @@ export interface UserRecord {
   secretKey: string;
   type: string;
   token?: string;
+  tempPassword?: string;
 }

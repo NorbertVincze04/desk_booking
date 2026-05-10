@@ -5,6 +5,7 @@ import { NotFoundComponent } from './features/not-found/not-found.component';
 import { SignInComponent } from './core/auth/sign-in/sign-in.component';
 import { ResetPassComponent } from './core/auth/reset-pass/reset-pass.component';
 import { RegisterComponent } from './core/auth/register/register.component';
+import { TempPassComponent } from './core/auth/temp-pass/temp-pass.component';
 import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -26,6 +27,11 @@ export const routes: Routes = [
   {
     path: 'register',
     component: RegisterComponent,
+    data: { showHeader: false },
+  },
+  {
+    path: 'temp-pass',
+    component: TempPassComponent,
     data: { showHeader: false },
   },
   {

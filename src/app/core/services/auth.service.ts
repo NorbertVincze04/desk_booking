@@ -49,16 +49,41 @@ export class AuthService {
     );
   }
 
-  login(email: string, password: string): Observable<boolean> {
+  login(
+    email: string,
+    password: string,
+  ): Observable<{ isTempPassword: boolean }> {
     return of(this.loadUsers()).pipe(
       map((users) => {
         const user = users.find((u) => u.email === email);
-        if (!user || this.decrypt(user.password) !== password) {
+        if (!user) {
           throw new Error('Email or password is incorrect.');
         }
-        return user;
+
+        let isTempPassword = false;
+        if (user.tempPassword && this.decrypt(user.tempPassword) === password) {
+          isTempPassword = true;
+        } else if (this.decrypt(user.password) !== password) {
+          throw new Error('Email or password is incorrect.');
+        }
+
+        return { user, isTempPassword };
       }),
-      tap((user) => {
+      tap(({ user, isTempPassword }) => {
+        if (isTempPassword) {
+          // Clear temp password after use
+          user.tempPassword = undefined;
+          const users = this.loadUsers();
+          const userIndex = users.findIndex((u) => u.email === email);
+          if (userIndex !== -1) {
+            users[userIndex] = user;
+            localStorage.setItem(
+              environment.USERS_STORAGE,
+              JSON.stringify(users),
+            );
+          }
+        }
+
         const token = this.generateToken();
         const userWithToken: UserRecord = {
           ...user,
@@ -70,13 +95,53 @@ export class AuthService {
           JSON.stringify(userWithToken),
         );
       }),
-      map(() => true),
+      map(({ isTempPassword }) => ({ isTempPassword })),
     );
   }
 
   logout(): void {
     this.currentUserSubject.next(null);
     localStorage.removeItem(environment.CURRENT_USER_STORAGE);
+  }
+
+  resetPassword(newPassword: string): Observable<boolean> {
+    const currentUser = this.currentUserSubject.value;
+    if (!currentUser) {
+      throw new Error('No user logged in.');
+    }
+
+    return of(this.loadUsers()).pipe(
+      tap((users) => {
+        const userIndex = users.findIndex((u) => u.email === currentUser.email);
+        if (userIndex !== -1) {
+          users[userIndex].password = this.encrypt(newPassword);
+          localStorage.setItem(
+            environment.USERS_STORAGE,
+            JSON.stringify(users),
+          );
+        }
+      }),
+      map(() => true),
+    );
+  }
+
+  generateTempPassword(email: string, secretKey: string): Observable<string> {
+    return of(this.loadUsers()).pipe(
+      map((users) => {
+        const user = users.find((u) => u.email === email);
+        if (!user) {
+          throw new Error('No account found with that email.');
+        }
+        if (user.secretKey !== secretKey) {
+          throw new Error('Secret key is incorrect.');
+        }
+
+        const tempPassword = this.generateTempPasswordString();
+        user.tempPassword = this.encrypt(tempPassword);
+        localStorage.setItem(environment.USERS_STORAGE, JSON.stringify(users));
+        return tempPassword;
+      }),
+    );
   }
 
   isTokenValid(user: UserRecord | null): boolean {
@@ -91,6 +156,16 @@ export class AuthService {
       token += charset.charAt(Math.floor(Math.random() * charset.length));
     }
     return token;
+  }
+
+  private generateTempPasswordString(): string {
+    const charset =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+    let password = '';
+    for (let i = 0; i < 12; i++) {
+      password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    return password;
   }
 
   private loadUsers(): UserRecord[] {

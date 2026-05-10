@@ -1,1 +1,58 @@
-<p>temp-pass works!</p>
+<app-auth-div>
+  <h2>Generate Temporary Password</h2>
+  <form [formGroup]="tempPassForm" (ngSubmit)="onGenerateTempPassword()">
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input
+        id="email"
+        formControlName="email"
+        placeholder="Enter your email"
+        class="form-control"
+        type="email"
+      />
+    </div>
+    <div class="form-group">
+      <label for="secretKey">Secret Key</label>
+      <input
+        id="secretKey"
+        formControlName="secretKey"
+        placeholder="Enter your secret key"
+        class="form-control"
+        type="password"
+      />
+    </div>
+    <button type="submit" class="form-submit" [disabled]="tempPassForm.invalid">
+      Generate Temporary Password
+    </button>
+    <div *ngIf="errorMessage" class="form-error">{{ errorMessage }}</div>
+  </form>
+
+  <div *ngIf="generatedPassword" class="temp-password-section">
+    <h3>Your Temporary Password</h3>
+    <div class="password-display">
+      <input
+        type="text"
+        [value]="generatedPassword"
+        readonly
+        class="form-control temp-password-input"
+        id="tempPassword"
+      />
+      <button
+        type="button"
+        class="copy-button"
+        (click)="copyToClipboard()"
+        title="Copy to clipboard"
+      >
+        <i class="fas fa-copy"></i>
+      </button>
+    </div>
+    <p class="temp-password-note">
+      This temporary password can be used only once. Use it to sign in and you
+      will be redirected to reset your password.
+    </p>
+  </div>
+
+  <div class="form-links">
+    <a (click)="onBackToSignIn()" class="back-link">Back to Sign In</a>
+  </div>
+</app-auth-div>

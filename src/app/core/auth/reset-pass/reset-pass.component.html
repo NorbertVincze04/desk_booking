@@ -1,1 +1,46 @@
-<p>reset-pass works!</p>
+<app-auth-div>
+  <h2>Reset Your Password</h2>
+  <form [formGroup]="resetPassForm" (ngSubmit)="onResetPassword()">
+    <div class="form-group">
+      <label for="newPassword">New Password</label>
+      <input
+        id="newPassword"
+        formControlName="newPassword"
+        placeholder="Enter your new password"
+        class="form-control"
+        type="password"
+      />
+    </div>
+    <div class="form-group">
+      <label for="confirmPassword">Confirm New Password</label>
+      <input
+        id="confirmPassword"
+        formControlName="confirmPassword"
+        placeholder="Confirm your new password"
+        class="form-control"
+        type="password"
+      />
+      <div
+        *ngIf="
+          resetPassForm.errors?.['passwordMismatch'] &&
+          resetPassForm.get('confirmPassword')?.touched
+        "
+        class="form-error"
+      >
+        Passwords do not match.
+      </div>
+    </div>
+    <button
+      type="submit"
+      class="form-submit"
+      [disabled]="resetPassForm.invalid"
+    >
+      Reset Password
+    </button>
+    <div *ngIf="errorMessage" class="form-error">{{ errorMessage }}</div>
+  </form>
+
+  <div class="form-links">
+    <a (click)="onCancel()" class="cancel-link">Cancel</a>
+  </div>
+</app-auth-div>

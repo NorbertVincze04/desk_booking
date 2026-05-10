@@ -23,7 +23,7 @@ export class RegisterComponent {
         Validators.minLength(6),
         Validators.maxLength(10),
         Validators.pattern(
-          '^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=[\\]{};\":\\\\|,.<>/?]).{6,10}$',
+          /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};":\\|,.<>/?]).*$/,
         ),
       ]),
       confirmPassword: new FormControl('', [Validators.required]),
@@ -32,7 +32,7 @@ export class RegisterComponent {
         Validators.minLength(6),
         Validators.maxLength(10),
         Validators.pattern(
-          '^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=[\\]{};\":\\\\|,.<>/?]).{6,10}$',
+          /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};":\\|,.<>/?]).*$/,
         ),
       ]),
     },

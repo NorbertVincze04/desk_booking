@@ -32,9 +32,13 @@ export class SignInComponent {
     const passwordValue = this.signInForm.get('password')?.value || '';
 
     this.authService.login(emailValue, passwordValue).subscribe({
-      next: () => {
+      next: (result) => {
         this.loginError = '';
-        this.router.navigate(['/booking']);
+        if (result.isTempPassword) {
+          this.router.navigate(['/reset-pass']);
+        } else {
+          this.router.navigate(['/booking']);
+        }
       },
       error: (error) => {
         this.loginError = error.message;
@@ -43,7 +47,7 @@ export class SignInComponent {
   }
 
   onForgotPassword() {
-    this.router.navigate(['/reset-pass']);
+    this.router.navigate(['/temp-pass']);
   }
 
   onRegister() {

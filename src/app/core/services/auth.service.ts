@@ -129,10 +129,10 @@ export class AuthService {
       map((users) => {
         const user = users.find((u) => u.email === email);
         if (!user) {
-          throw new Error('No account found with that email.');
+          throw new Error('Email or secret key is incorrect.');
         }
         if (user.secretKey !== secretKey) {
-          throw new Error('Secret key is incorrect.');
+          throw new Error('Email or secret key is incorrect.');
         }
 
         const tempPassword = this.generateTempPasswordString();

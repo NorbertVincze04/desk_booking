@@ -29,6 +29,10 @@ export class ResetPassComponent implements OnInit {
       newPassword: new FormControl('', [
         Validators.required,
         Validators.minLength(6),
+        Validators.maxLength(10),
+        Validators.pattern(
+          /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};":\\|,.<>/?]).*$/,
+        ),
       ]),
       confirmPassword: new FormControl('', [Validators.required]),
     },
@@ -38,6 +42,7 @@ export class ResetPassComponent implements OnInit {
   errorMessage = '';
   newPasswordVisible = false;
   confirmPasswordVisible = false;
+  submitted = false;
 
   constructor(
     private authService: AuthService,
@@ -53,6 +58,8 @@ export class ResetPassComponent implements OnInit {
   }
 
   onResetPassword() {
+    this.submitted = true;
+    this.errorMessage = '';
     if (!this.resetPassForm.valid) {
       return;
     }
@@ -80,5 +87,13 @@ export class ResetPassComponent implements OnInit {
 
   toggleConfirmPasswordVisibility() {
     this.confirmPasswordVisible = !this.confirmPasswordVisible;
+  }
+
+  get newPassword() {
+    return this.resetPassForm.get('newPassword');
+  }
+
+  get confirmPassword() {
+    return this.resetPassForm.get('confirmPassword');
   }
 }

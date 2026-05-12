@@ -94,6 +94,12 @@ label {
   margin-top: 10px;
 }
 
+.field-error {
+  color: #c00;
+  font-size: 0.9rem;
+  margin-top: 6px;
+}
+
 .form-links {
   display: flex;
   flex-direction: column;

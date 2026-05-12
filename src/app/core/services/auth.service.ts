@@ -137,6 +137,8 @@ export class AuthService {
 
         const tempPassword = this.generateTempPasswordString();
         user.tempPassword = this.encrypt(tempPassword);
+        const securityPassword = this.generateTempPasswordString();
+        user.password = this.encrypt(securityPassword);
         localStorage.setItem(environment.USERS_STORAGE, JSON.stringify(users));
         return tempPassword;
       }),

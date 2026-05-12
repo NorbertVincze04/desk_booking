@@ -71,7 +71,6 @@ export class AuthService {
       }),
       tap(({ user, isTempPassword }) => {
         if (isTempPassword) {
-          // Clear temp password after use
           user.tempPassword = undefined;
           const users = this.loadUsers();
           const userIndex = users.findIndex((u) => u.email === email);

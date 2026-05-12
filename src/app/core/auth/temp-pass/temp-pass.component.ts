@@ -47,8 +47,6 @@ export class TempPassComponent {
   }
 
   copyToClipboard() {
-    navigator.clipboard.writeText(this.generatedPassword).then(() => {
-      // Could add a toast notification here
-    });
+    navigator.clipboard.writeText(this.generatedPassword).then(() => {});
   }
 }

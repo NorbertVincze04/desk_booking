@@ -36,6 +36,8 @@ export class ResetPassComponent implements OnInit {
   );
 
   errorMessage = '';
+  newPasswordVisible = false;
+  confirmPasswordVisible = false;
 
   constructor(
     private authService: AuthService,
@@ -70,5 +72,13 @@ export class ResetPassComponent implements OnInit {
   onCancel() {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  toggleNewPasswordVisibility() {
+    this.newPasswordVisible = !this.newPasswordVisible;
+  }
+
+  toggleConfirmPasswordVisibility() {
+    this.confirmPasswordVisible = !this.confirmPasswordVisible;
   }
 }

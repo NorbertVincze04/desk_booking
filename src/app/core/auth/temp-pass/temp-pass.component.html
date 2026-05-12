@@ -13,13 +13,23 @@
     </div>
     <div class="form-group">
       <label for="secretKey">Secret Key</label>
-      <input
-        id="secretKey"
-        formControlName="secretKey"
-        placeholder="Enter your secret key"
-        class="form-control"
-        type="password"
-      />
+      <div class="secretKey-input-container">
+        <input
+          id="secretKey"
+          [type]="secretKeyVisible ? 'text' : 'password'"
+          formControlName="secretKey"
+          placeholder="Enter your secret key"
+          class="form-control"
+        />
+        <button
+          type="button"
+          class="visibility-toggle"
+          (click)="togglePasswordVisibility()"
+          tabindex="-1"
+        >
+          <i [class]="secretKeyVisible ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+        </button>
+      </div>
     </div>
     <button type="submit" class="form-submit" [disabled]="tempPassForm.invalid">
       Generate Temporary Password

@@ -16,6 +16,7 @@ export class TempPassComponent {
 
   generatedPassword = '';
   errorMessage = '';
+  secretKeyVisible = false;
 
   constructor(
     private authService: AuthService,
@@ -48,5 +49,9 @@ export class TempPassComponent {
 
   copyToClipboard() {
     navigator.clipboard.writeText(this.generatedPassword).then(() => {});
+  }
+
+  togglePasswordVisibility() {
+    this.secretKeyVisible = !this.secretKeyVisible;
   }
 }

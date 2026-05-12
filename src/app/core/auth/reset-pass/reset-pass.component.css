@@ -34,6 +34,38 @@ label {
   box-shadow: 0 0 5px rgba(0, 123, 192, 0.5);
 }
 
+.password-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-container .form-control {
+  flex: 1;
+  padding-right: 40px;
+}
+
+.visibility-toggle {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.visibility-toggle:hover {
+  color: #007bc0;
+}
+
+.visibility-toggle:focus {
+  outline: none;
+}
+
 .form-submit {
   align-self: center;
   margin-top: 10px;

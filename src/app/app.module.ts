@@ -27,6 +27,7 @@ import { SignInComponent } from './core/auth/sign-in/sign-in.component';
 import { RegisterComponent } from './core/auth/register/register.component';
 import { TempPassComponent } from './core/auth/temp-pass/temp-pass.component';
 import { ResetPassComponent } from './core/auth/reset-pass/reset-pass.component';
+import { AdminDashboardComponent } from './features/admin-dashboard/admin-dashboard.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,7 @@ import { ResetPassComponent } from './core/auth/reset-pass/reset-pass.component'
     RegisterComponent,
     TempPassComponent,
     ResetPassComponent,
+    AdminDashboardComponent,
   ],
   imports: [
     BrowserModule,

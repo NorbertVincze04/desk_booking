@@ -10,14 +10,40 @@ import { UserRecord } from '../models/user-record';
 export class AuthService {
   private currentUserSubject = new BehaviorSubject<UserRecord | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
+  adminUser: UserRecord = {
+    fullName: 'Admin User',
+    email: 'admin@gmail.com',
+    type: 'admin',
+    password: this.encrypt('Admin12!'),
+    secretKey: 'Admin12!',
+  };
 
   constructor() {
+    this.seedAdminUser();
+
     const storedUser = localStorage.getItem(environment.CURRENT_USER_STORAGE);
     if (storedUser) {
       this.currentUserSubject.next(JSON.parse(storedUser));
     }
   }
 
+  get userRole() {
+    return this.currentUserSubject.value?.type;
+  }
+
+  private seedAdminUser(): void {
+    const users = this.loadUsers();
+
+    const adminExists = users.some(
+      (user) => user.email === this.adminUser.email,
+    );
+
+    if (!adminExists) {
+      users.push(this.adminUser);
+
+      localStorage.setItem(environment.USERS_STORAGE, JSON.stringify(users));
+    }
+  }
   register(userData: {
     fullName: string;
     email: string;

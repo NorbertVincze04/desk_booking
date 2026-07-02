@@ -4,6 +4,9 @@
       ><h3>Booking App</h3></a
     >
     <div class="right">
+      <span *ngIf="userType === 'admin'" class="admin-button"
+        ><a routerLink="/admin"><h4>Admin Dashboard</h4></a></span
+      >
       <a *ngIf="!currentUser" routerLink="/login"><h4>Sign In</h4></a>
       <span *ngIf="currentUser" class="user-name"
         ><h4>{{ currentUser.fullName }}</h4></span

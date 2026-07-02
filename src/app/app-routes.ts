@@ -7,6 +7,8 @@ import { ResetPassComponent } from './core/auth/reset-pass/reset-pass.component'
 import { RegisterComponent } from './core/auth/register/register.component';
 import { TempPassComponent } from './core/auth/temp-pass/temp-pass.component';
 import { AuthGuard } from './core/guards/auth.guard';
+import { AdminDashboardComponent } from './features/admin-dashboard/admin-dashboard.component';
+import { AdminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -50,5 +52,11 @@ export const routes: Routes = [
     path: '**',
     component: NotFoundComponent,
     data: { showHeader: false },
+  },
+  {
+    path: 'admin',
+    component: AdminDashboardComponent,
+    canActivate: [AdminGuard],
+    data: { showHeader: true },
   },
 ];

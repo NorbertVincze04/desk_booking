@@ -1,7 +1,7 @@
 <app-header *ngIf="showHeader"></app-header>
 
 <main>
-  <app-top-bar *ngIf="showHeader"></app-top-bar>
+  <app-top-bar *ngIf="showHeader && showTopbar"></app-top-bar>
   <body>
     <router-outlet></router-outlet>
   </body>

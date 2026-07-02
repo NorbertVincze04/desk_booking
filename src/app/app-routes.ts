@@ -49,14 +49,14 @@ export const routes: Routes = [
     data: { showHeader: true },
   },
   {
-    path: '**',
-    component: NotFoundComponent,
-    data: { showHeader: false },
-  },
-  {
     path: 'admin',
     component: AdminDashboardComponent,
     canActivate: [AdminGuard],
-    data: { showHeader: true },
+    data: { showHeader: true, showTopbar: false },
+  },
+  {
+    path: '**',
+    component: NotFoundComponent,
+    data: { showHeader: false },
   },
 ];

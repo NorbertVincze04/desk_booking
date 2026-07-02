@@ -10,6 +10,7 @@ import { filter, takeUntil } from 'rxjs/operators';
 })
 export class AppComponent implements OnInit, OnDestroy {
   showHeader = true;
+  showTopbar = true;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -30,6 +31,8 @@ export class AppComponent implements OnInit, OnDestroy {
         }
         const showHeader = route.snapshot.data['showHeader'];
         this.showHeader = showHeader !== false;
+        const showTopbar = route.snapshot.data['showTopbar'];
+        this.showTopbar = showTopbar !== false;
       });
   }
 

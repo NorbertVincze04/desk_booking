@@ -20,7 +20,7 @@ export class AdminDashboardComponent {
   selectedGroup = signal<string>('A');
   selectedNumber = signal<number>(1);
 
-  users = ['Alice', 'Bob', 'Charlie', 'Admin'];
+  users = [];
   allUsers: string[] = [];
   userSearch: string = '';
 

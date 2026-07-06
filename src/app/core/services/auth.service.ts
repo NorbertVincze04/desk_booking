@@ -27,9 +27,6 @@ export class AuthService {
     }
   }
 
-  /**
-   * Return all stored users. Caller should not mutate returned array.
-   */
   getAllUsers(): UserRecord[] {
     return this.loadUsers();
   }

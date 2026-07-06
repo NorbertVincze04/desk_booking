@@ -61,7 +61,6 @@ export class BookingService {
     private http: HttpClient,
     private authService: AuthService,
   ) {
-    // Update user name when auth state changes
     this.authService.currentUser$.subscribe((user) => {
       this.userSubject.next(user ? user.fullName : 'Guest');
     });

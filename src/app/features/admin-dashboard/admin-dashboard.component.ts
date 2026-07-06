@@ -39,7 +39,6 @@ export class AdminDashboardComponent {
 
     this.bookingService.loadBookings();
 
-    // load existing users for selector
     const users = this.authService.getAllUsers();
     this.allUsers = users.map((u) => u.fullName);
   }
@@ -63,7 +62,6 @@ export class AdminDashboardComponent {
     this.creating.set(false);
     this.editingBooking.set({ ...booking });
 
-    // deskId format is like "A1" (group + number). Parse safely.
     const group = booking.deskId.charAt(0) || 'A';
     const number = Number(booking.deskId.slice(1)) || 1;
     this.selectedGroup.set(group);
@@ -81,7 +79,6 @@ export class AdminDashboardComponent {
     const b = this.editingBooking();
     if (!b) return;
 
-    // Prevent weekend bookings (Saturday=6, Sunday=0)
     const day = b.date.getDay();
     if (day === 0 || day === 6) {
       this.errorMessage.set(
@@ -91,7 +88,6 @@ export class AdminDashboardComponent {
     }
 
     if (this.creating()) {
-      // CREATE - prevent double-booking same desk/date
       if (this.isCollision(b)) {
         this.errorMessage.set(
           `Desk ${b.deskId} is already booked on ${b.date.toDateString()}`,
@@ -108,7 +104,6 @@ export class AdminDashboardComponent {
         this.errorMessage.set(null);
       });
     } else {
-      // UPDATE - prevent collision with other bookings
       if (this.isCollision(b, b.id)) {
         this.errorMessage.set(
           `Desk ${b.deskId} is already booked on ${b.date.toDateString()}`,
@@ -143,7 +138,6 @@ export class AdminDashboardComponent {
     if (booking) {
       booking.date = new Date(event);
       this.editingBooking.set({ ...booking });
-      // Validate weekends immediately
       const day = booking.date.getDay();
       if (day === 0 || day === 6) {
         this.errorMessage.set(
@@ -168,13 +162,11 @@ export class AdminDashboardComponent {
   updateDeskId() {
     const booking = this.editingBooking();
     if (booking) {
-      // Keep deskId consistent as e.g. "A1" (no hyphen)
       booking.deskId = `${this.selectedGroup()}${this.selectedNumber()}`;
       this.editingBooking.set({ ...booking });
     }
   }
 
-  // Validate before creating/updating to prevent double-booking same desk/date
   private isCollision(booking: Booking, excludeId?: string) {
     return this.bookings().some(
       (b) =>

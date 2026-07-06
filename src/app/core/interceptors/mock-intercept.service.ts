@@ -57,9 +57,8 @@ export class MockInterceptService implements HttpInterceptor {
         const mockBookings = localStorage.getItem(environment.BOOKING_STORAGE);
         this.mockBookings = mockBookings ? JSON.parse(mockBookings) : [];
 
-        // Remove past bookings
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // Reset time to midnight
+        today.setHours(0, 0, 0, 0);
 
         this.mockBookings = this.mockBookings.filter((b) => {
           const bookingDate = new Date(b.booking_date);
@@ -80,7 +79,7 @@ export class MockInterceptService implements HttpInterceptor {
         bookingDate.setHours(0, 0, 0, 0);
 
         const todayCreate = new Date();
-        todayCreate.setHours(0, 0, 0, 0); // Reset time to midnight
+        todayCreate.setHours(0, 0, 0, 0);
 
         if (bookingDate < todayCreate) {
           responsePayload = {

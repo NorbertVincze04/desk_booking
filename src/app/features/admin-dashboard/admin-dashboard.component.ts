@@ -39,8 +39,9 @@ export class AdminDashboardComponent {
 
     this.bookingService.loadBookings();
 
-    const users = this.authService.getAllUsers();
-    this.allUsers = users.map((u) => u.fullName);
+    this.authService.getAllUsers().subscribe((users) => {
+      this.allUsers = users.map((u) => u.fullName);
+    });
   }
 
   startCreate() {

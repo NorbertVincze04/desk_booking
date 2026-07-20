@@ -8,7 +8,7 @@ import {
 } from '@angular/common/http';
 import { Observable, of, delay } from 'rxjs';
 import { MockBooking } from '../models/mock-booking';
-import { environment } from '../../../environments/envrionment';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',

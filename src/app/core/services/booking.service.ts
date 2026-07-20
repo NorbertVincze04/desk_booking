@@ -13,6 +13,7 @@ import { Booking } from '../models/booking';
 import { Notification } from '../models/notification';
 import { ValidationStatus } from '../models/validation-status';
 import { AuthService } from './auth.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -55,7 +56,7 @@ export class BookingService {
     return this.selectedDateSubject.value;
   }
 
-  private apiUrl = 'https://backend-api.com/api';
+  private apiUrl = `${environment.apiUrl}/`;
 
   constructor(
     private http: HttpClient,

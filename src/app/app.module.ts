@@ -15,11 +15,9 @@ import { routes } from './app-routes';
 import { AppComponent } from './app.component';
 
 import {
-  HTTP_INTERCEPTORS,
   provideHttpClient,
   withInterceptorsFromDi,
 } from '@angular/common/http';
-import { MockInterceptService } from './core/interceptors/mock-intercept.service';
 import { NotFoundComponent } from './features/not-found/not-found.component';
 import { BookingComponent } from './features/booking/booking.component';
 import { InformationComponent } from './features/information/information.component';
@@ -64,7 +62,6 @@ import { AdminDashboardComponent } from './features/admin-dashboard/admin-dashbo
       },
     }),
     provideHttpClient(withInterceptorsFromDi()),
-    { provide: HTTP_INTERCEPTORS, useClass: MockInterceptService, multi: true },
   ],
   bootstrap: [AppComponent],
 })

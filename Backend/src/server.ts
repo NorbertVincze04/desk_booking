@@ -1,6 +1,6 @@
-import { PORT } from "./config.ts";
+import { PORT } from "./config/config.ts";
 import { createApp } from "./app.ts";
-import { seedAdminUser } from "./seedAdminUser.ts";
+import { seedAdminUser } from "./utils/seedAdminUser.ts";
 
 const app = createApp();
 
@@ -9,5 +9,5 @@ void seedAdminUser().catch((error) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Express server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });

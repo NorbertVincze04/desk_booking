@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-import { CORS_ORIGIN } from "./config.ts";
+import { CORS_ORIGIN } from "./config/config.ts";
 import { authRouter } from "./routes/auth.routes.ts";
 import { bookingRouter } from "./routes/booking.routes.ts";
 import { healthRouter } from "./routes/health.routes.ts";

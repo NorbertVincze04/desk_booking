@@ -102,6 +102,7 @@ export class UserRepository {
     }));
   }
 
+  // used when registering a new user
   static async existsByEmail(email: string): Promise<boolean> {
     const result = await pool.query(
       `

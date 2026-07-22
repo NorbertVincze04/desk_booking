@@ -35,7 +35,7 @@ export class AuthController {
         secretKey,
       );
 
-      return res.status(201).json({
+      return res.json({
         success: true,
         payload: user,
       });

@@ -16,7 +16,7 @@ export class AuthService {
       throw new Error("An account with that email already exists.");
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(password, 10); // 2^n rounds of hashing, 10 is standard
 
     const user = await UserRepository.create(
       fullName,

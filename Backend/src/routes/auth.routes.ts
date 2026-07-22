@@ -1,9 +1,7 @@
 import { Router } from "express";
 import { AuthController } from "../controllers/AuthController.ts";
-import {
-  adminMiddleware,
-  authMiddleware,
-} from "../middleware/auth.middleware.ts";
+import { authMiddleware } from "../middleware/auth.middleware.ts";
+import { adminMiddleware } from "../middleware/admin.middleware.ts";
 
 export const authRouter = Router();
 
@@ -19,6 +17,7 @@ authRouter.post("/temp-password", (req, res) =>
   AuthController.generateTempPassword(req, res),
 );
 
+// Admin-only route to get all users
 authRouter.get("/users", authMiddleware, adminMiddleware, (req, res) =>
   AuthController.getUsers(req, res),
 );

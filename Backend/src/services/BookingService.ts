@@ -1,6 +1,8 @@
 import { BookingRepository } from "../repositories/BookingRepository.ts";
 import type { Booking, BookingRequest } from "../types/booking.types.ts";
 
+// implements CRUD
+
 export class BookingService {
   static async getAllBookings(): Promise<Booking[]> {
     return BookingRepository.getAllBookings();

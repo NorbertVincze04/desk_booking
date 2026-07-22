@@ -46,39 +46,3 @@ export function authMiddleware(
     });
   }
 }
-
-export function adminMiddleware(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): void | Response {
-  if (!req.user) {
-    return res.status(401).json({
-      success: false,
-      message: "Authentication required",
-    });
-  }
-
-  if (req.user.type !== "admin") {
-    return res.status(403).json({
-      success: false,
-      message: "Admin access required",
-    });
-  }
-
-  next();
-}
-
-export function errorHandler(
-  err: any,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): void {
-  console.error("Error:", err);
-
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || "Internal server error",
-  });
-}

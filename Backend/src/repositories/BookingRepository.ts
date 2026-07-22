@@ -33,6 +33,7 @@ export class BookingRepository {
     return result.rows[0];
   }
 
+  // allow partial updates by using COALESCE to keep existing values if new ones are not provided
   static async updateBooking(
     id: number,
     data: BookingRequest,

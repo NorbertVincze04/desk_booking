@@ -159,9 +159,11 @@
       </div>
     </div>
 
-    <button type="submit" class="form-submit" [disabled]="signUpForm.invalid">
-      Register
-    </button>
+    <app-action-button
+      buttonType="submit"
+      [config]="registerActionConfig"
+      [isLoading]="registrationLoading"
+    ></app-action-button>
     <div *ngIf="registrationError" class="form-error">
       {{ registrationError }}
     </div>

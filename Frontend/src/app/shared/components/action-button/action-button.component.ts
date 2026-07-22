@@ -22,6 +22,7 @@ export interface ActionConfig {
 export class ActionButtonComponent {
   @Input() config: ActionConfig = { label: 'Action' };
   @Input() isLoading: boolean = false;
+  @Input() buttonType: 'button' | 'submit' | 'reset' = 'button';
   @Input() icon: TemplateRef<any> | null = null;
   @Output() action = new EventEmitter<void>();
 

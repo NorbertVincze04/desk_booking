@@ -16,14 +16,25 @@
           <td>{{ b.deskId }}</td>
           <td>{{ b.date | date }}</td>
           <td>
-            <button (click)="startEdit(b)">Edit</button>
-            <button (click)="deleteBooking(b)">Delete</button>
+            <app-action-button
+              [config]="getEditActionConfig()"
+              (action)="startEdit(b)"
+            ></app-action-button>
+            <app-action-button
+              [config]="getDeleteActionConfig(b)"
+              [isLoading]="deletingBookingKey() === getBookingKey(b)"
+              (action)="deleteBooking(b)"
+            ></app-action-button>
           </td>
         </tr>
       </tbody>
     </table>
 
-    <button class="create-btn" (click)="startCreate()">Create Booking</button>
+    <app-action-button
+      class="create-btn"
+      [config]="getCreateActionConfig()"
+      (action)="startCreate()"
+    ></app-action-button>
 
     <div class="modal" *ngIf="editingBooking() as booking">
       <div class="modal-content">
@@ -71,8 +82,15 @@
         />
 
         <div class="modal-actions">
-          <button (click)="saveBooking()">Save</button>
-          <button (click)="cancelEdit()">Cancel</button>
+          <app-action-button
+            [config]="getSaveActionConfig()"
+            [isLoading]="saveLoading()"
+            (action)="saveBooking()"
+          ></app-action-button>
+          <app-action-button
+            [config]="getCancelActionConfig()"
+            (action)="cancelEdit()"
+          ></app-action-button>
         </div>
         <div class="error-text" *ngIf="errorMessage()">
           {{ errorMessage() }}

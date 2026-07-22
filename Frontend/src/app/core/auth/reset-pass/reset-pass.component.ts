@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ActionConfig } from '../../../shared/components/action-button/action-button.component';
 
 @Component({
   selector: 'app-reset-pass',
@@ -43,6 +44,14 @@ export class ResetPassComponent implements OnInit {
   newPasswordVisible = false;
   confirmPasswordVisible = false;
   submitted = false;
+  resetLoading = false;
+
+  resetButtonConfig: ActionConfig = {
+    label: 'Reset Password',
+    loadingLabel: 'Resetting...',
+    variant: 'primary',
+    disabled: false,
+  };
 
   constructor(
     private authService: AuthService,
@@ -58,22 +67,37 @@ export class ResetPassComponent implements OnInit {
   }
 
   onResetPassword() {
+    if (this.resetLoading) {
+      return;
+    }
+
     this.submitted = true;
     this.errorMessage = '';
     if (!this.resetPassForm.valid) {
       return;
     }
 
+    this.resetLoading = true;
+
     const newPassword = this.resetPassForm.get('newPassword')?.value || '';
 
     this.authService.resetPassword(newPassword).subscribe({
       next: () => {
+        this.resetLoading = false;
         this.router.navigate(['/booking']);
       },
       error: (error) => {
+        this.resetLoading = false;
         this.errorMessage = error.message;
       },
     });
+  }
+
+  get resetActionConfig(): ActionConfig {
+    return {
+      ...this.resetButtonConfig,
+      disabled: this.resetPassForm.invalid || this.resetLoading,
+    };
   }
 
   onCancel() {

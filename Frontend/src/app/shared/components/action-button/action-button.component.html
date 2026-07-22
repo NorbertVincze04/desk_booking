@@ -1,4 +1,5 @@
 <button
+  [type]="buttonType"
   (click)="onAction()"
   [disabled]="config.disabled || isLoading"
   [ngClass]="'btn-' + (config.variant || 'primary')"

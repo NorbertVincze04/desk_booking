@@ -7,6 +7,7 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ActionConfig } from '../../../shared/components/action-button/action-button.component';
 
 @Component({
   selector: 'app-register',
@@ -41,10 +42,18 @@ export class RegisterComponent {
 
   submitted = false;
   registrationError = '';
+  registrationLoading = false;
 
   passwordVisible = false;
   confirmPasswordVisible = false;
   secretKeyVisible = false;
+
+  registerButtonConfig: ActionConfig = {
+    label: 'Register',
+    loadingLabel: 'Registering...',
+    variant: 'primary',
+    disabled: false,
+  };
 
   constructor(
     private authService: AuthService,
@@ -99,12 +108,18 @@ export class RegisterComponent {
   }
 
   onRegister() {
+    if (this.registrationLoading) {
+      return;
+    }
+
     this.submitted = true;
     this.registrationError = '';
 
     if (!this.signUpForm.valid) {
       return;
     }
+
+    this.registrationLoading = true;
 
     this.authService
       .register({
@@ -115,11 +130,20 @@ export class RegisterComponent {
       })
       .subscribe({
         next: () => {
+          this.registrationLoading = false;
           this.router.navigate(['/login']);
         },
         error: (error) => {
+          this.registrationLoading = false;
           this.registrationError = error.message;
         },
       });
+  }
+
+  get registerActionConfig(): ActionConfig {
+    return {
+      ...this.registerButtonConfig,
+      disabled: this.signUpForm.invalid || this.registrationLoading,
+    };
   }
 }

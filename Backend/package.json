@@ -6,7 +6,10 @@
   "scripts": {
     "test": "tsx --test tests/unit/*.test.ts",
     "build": "tsc",
-    "start": "node src/server.ts"
+    "start": "node src/server.ts",
+    "ca": "tsx write-ca.ts",
+    "tunnel": "cf ssh pgadmin-n8n -L 15432:d36f1f4-psql-master-alias.node.dc1.cdts.ipz001.internal.bosch.cloud:5432 -N",
+    "query": "tsx query.ts"
   },
   "keywords": [],
   "author": "",
@@ -31,6 +34,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.11.0",
-    "pg": "^8.22.0"
+    "pg": "^8.22.0",
+    "ts-node": "^10.9.2"
   }
 }

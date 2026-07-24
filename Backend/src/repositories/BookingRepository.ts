@@ -6,7 +6,7 @@ export class BookingRepository {
     const result = await pool.query(
       `
       SELECT id, user_name, booking_date, booking_desk
-      FROM bookings
+      FROM "ico-env".bookings
       ORDER BY booking_date ASC, booking_desk ASC
       `,
     );
@@ -21,7 +21,7 @@ export class BookingRepository {
   ): Promise<Booking> {
     const result = await pool.query(
       `
-      INSERT INTO bookings 
+      INSERT INTO "ico-env".bookings 
         (user_name, booking_date, booking_desk)
       VALUES 
         ($1, $2, $3)
@@ -40,7 +40,7 @@ export class BookingRepository {
   ): Promise<Booking | null> {
     const result = await pool.query(
       `
-      UPDATE bookings
+      UPDATE "ico-env".bookings
       SET 
         user_name = COALESCE($1, user_name),
         booking_date = COALESCE($2, booking_date),
@@ -62,7 +62,7 @@ export class BookingRepository {
   static async deleteBooking(id: number): Promise<number | null> {
     const result = await pool.query(
       `
-      DELETE FROM bookings
+      DELETE FROM "ico-env".bookings
       WHERE id = $1
       RETURNING id
       `,

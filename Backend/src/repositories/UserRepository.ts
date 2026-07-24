@@ -24,7 +24,7 @@ export class UserRepository {
   ): Promise<UserRecord> {
     const result = await pool.query(
       `
-      INSERT INTO users
+      INSERT INTO "ico-env".users
         (full_name, email, password_hash, secret_key, type)
       VALUES
         ($1, $2, $3, $4, $5)
@@ -42,7 +42,7 @@ export class UserRepository {
   ): Promise<number | null> {
     const result = await pool.query(
       `
-      UPDATE users
+      UPDATE "ico-env".users
       SET password_hash = $1, temp_password_hash = NULL
       WHERE email = $2
       RETURNING id
@@ -59,7 +59,7 @@ export class UserRepository {
   ): Promise<void> {
     await pool.query(
       `
-      UPDATE users
+      UPDATE "ico-env".users
       SET temp_password_hash = $1
       WHERE id = $2
       `,
@@ -70,7 +70,7 @@ export class UserRepository {
   static async clearTempPassword(userId: number): Promise<void> {
     await pool.query(
       `
-      UPDATE users
+      UPDATE "ico-env".users
       SET temp_password_hash = NULL
       WHERE id = $1
       `,
@@ -89,7 +89,7 @@ export class UserRepository {
     const result = await pool.query(
       `
       SELECT id, full_name, email, type
-      FROM users
+      FROM "ico-env".users
       ORDER BY id ASC
       `,
     );
@@ -106,7 +106,7 @@ export class UserRepository {
   static async existsByEmail(email: string): Promise<boolean> {
     const result = await pool.query(
       `
-      SELECT id FROM users
+      SELECT id FROM "ico-env".users
       WHERE email = $1
       `,
       [email],

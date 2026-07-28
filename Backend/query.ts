@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { existsSync, readFileSync } from "node:fs";
 import { Client } from "pg";
+import { Tunnel } from "./tunnel.ts";
 
 type SslConfig = {
   ca?: string;
@@ -44,10 +45,15 @@ function assertReadOnly(sql: string) {
 
 async function main() {
   const sql =
-    process.argv.slice(2).join(" ").trim() ||
-    'SELECT * FROM "ico-env".bookings';
+    process.argv.slice(2).join(" ").trim() || 'SELECT * FROM "ico-env".users';
 
   assertReadOnly(sql);
+
+  // Open tunnel before connecting to database
+  const tunnel = new Tunnel();
+  console.log("Opening database tunnel...");
+  await tunnel.open();
+  console.log("Tunnel opened successfully");
 
   const client = new Client({
     host: process.env.PGHOST || "127.0.0.1",
@@ -64,6 +70,7 @@ async function main() {
   console.table(res.rows);
   console.log(`${res.rowCount} row(s).`);
   await client.end();
+  await tunnel.close();
 }
 
 main().catch((err: unknown) => {
@@ -72,7 +79,7 @@ main().catch((err: unknown) => {
   console.error("Query failed:", message);
   if (/ECONNREFUSED|timeout/i.test(message)) {
     console.error(
-      "\nIs the tunnel running? In another terminal: npm run tunnel",
+      "\nMake sure you have proper network access and credentials configured in .env",
     );
   }
   process.exit(1);

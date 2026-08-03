@@ -71,8 +71,11 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Upload Backend Build Artifact
+      - name: Upload Backend Artifact
         uses: actions/upload-artifact@v4
         with:
           name: backend-build
-          path: Backend/dist
+          path: |
+            Backend/dist
+            Backend/package.json
+            Backend/package-lock.json

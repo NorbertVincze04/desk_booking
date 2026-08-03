@@ -16,20 +16,31 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: "npm"
           cache-dependency-path: Frontend/package-lock.json
+
       - name: Install dependencies
         run: npm ci
+
       - name: Run tests
         run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
+
       - name: Security Audit
         run: npm audit --audit-level=critical
+
       - name: Build application
         run: npm run build
+
+      - name: Upload Frontend Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: Frontend/dist
 
   backend-build:
     runs-on: ubuntu-latest
@@ -40,17 +51,28 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: "npm"
           cache-dependency-path: Backend/package-lock.json
+
       - name: Install dependencies
         run: npm ci
+
       - name: Run tests
-        run: npm test
+        run: npm test --code-coverage
+
       - name: Security Audit
         run: npm audit --audit-level=critical
+
       - name: Build application
         run: npm run build
+
+      - name: Upload Backend Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build
+          path: Backend/dist

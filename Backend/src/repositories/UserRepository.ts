@@ -1,4 +1,4 @@
-import { Tunnel } from "../../tunnel.ts";
+import { Tunnel } from "../tunnel.ts";
 import { runQuery } from "../config/db.ts";
 import type { UserRecord } from "../types/user.types.ts";
 

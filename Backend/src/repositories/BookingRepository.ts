@@ -1,6 +1,6 @@
 import { runQuery } from "../config/db.ts";
 import type { Booking, BookingRequest } from "../types/booking.types.ts";
-import { Tunnel } from "../../tunnel.ts";
+import { Tunnel } from "../tunnel.ts";
 
 const tunnel = new Tunnel();
 

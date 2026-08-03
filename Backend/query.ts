@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { existsSync, readFileSync } from "node:fs";
 import { Client } from "pg";
-import { Tunnel } from "./tunnel.ts";
+import { Tunnel } from "./src/tunnel.ts";
 
 type SslConfig = {
   ca?: string;

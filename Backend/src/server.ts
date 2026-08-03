@@ -1,7 +1,7 @@
 import { PORT } from "./config/config.ts";
 import { createApp } from "./app.ts";
 import { seedAdminUser } from "./utils/seedAdminUser.ts";
-import { Tunnel } from "../tunnel.ts";
+import { Tunnel } from "./tunnel.ts";
 
 // call function from app.ts to create app
 const app = createApp();

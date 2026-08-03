@@ -2,9 +2,23 @@ import { PORT } from "./config/config.ts";
 import { createApp } from "./app.ts";
 import { seedAdminUser } from "./utils/seedAdminUser.ts";
 import { Tunnel } from "./tunnel.ts";
+import { BookingService } from "./services/BookingService.ts";
 
 // call function from app.ts to create app
 const app = createApp();
+
+const CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+async function cleanupPastBookings() {
+  try {
+    const count = await BookingService.deletePastBookings();
+    if (count > 0) {
+      console.log(`Cleanup: deleted ${count} past booking(s)`);
+    }
+  } catch (error) {
+    console.error("Cleanup: failed to delete past bookings:", error);
+  }
+}
 
 // Initialize tunnel and start server
 async function startServer() {
@@ -22,6 +36,10 @@ async function startServer() {
     } catch (error) {
       console.error("Failed to seed admin user:", error);
     }
+
+    // Run initial cleanup then schedule daily repeats
+    await cleanupPastBookings();
+    setInterval(cleanupPastBookings, CLEANUP_INTERVAL_MS);
 
     // start server
     app.listen(PORT, () => {

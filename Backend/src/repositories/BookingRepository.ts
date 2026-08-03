@@ -97,4 +97,18 @@ export class BookingRepository {
 
     return result[0]?.id || null;
   }
+
+  static async deletePastBookings(): Promise<number> {
+    const result = await withTunnel(() =>
+      runQuery<{ id: number }>(
+        `
+      DELETE FROM "ico-env".bookings
+      WHERE booking_date < CURRENT_DATE
+      RETURNING id
+      `,
+      ),
+    );
+
+    return result.length;
+  }
 }

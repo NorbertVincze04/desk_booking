@@ -16,6 +16,7 @@
   </ng-template>
 
   <ng-template #labelTemplate>
+    <i *ngIf="config.icon" [class]="config.icon"></i>
     {{ displayLabel }}
   </ng-template>
 </button>

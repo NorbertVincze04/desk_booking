@@ -6,6 +6,8 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background-color: rgb(255, 255, 255);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 a {
@@ -25,6 +27,7 @@ a {
   padding: 5px;
   padding-left: 10px;
   padding-right: 10px;
+  border-radius: 4px;
 }
 
 .admin-button:hover {

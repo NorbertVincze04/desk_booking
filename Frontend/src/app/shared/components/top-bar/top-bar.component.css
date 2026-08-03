@@ -16,7 +16,7 @@ h5 {
 .right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 25px;
 }
 
 a {

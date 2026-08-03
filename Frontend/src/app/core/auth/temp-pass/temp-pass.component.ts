@@ -28,8 +28,9 @@ export class TempPassComponent {
   };
 
   copyButtonConfig: ActionConfig = {
-    label: 'Copy',
-    variant: 'secondary',
+    label: '',
+    icon: 'fas fa-copy',
+    variant: 'primary',
     disabled: false,
   };
 

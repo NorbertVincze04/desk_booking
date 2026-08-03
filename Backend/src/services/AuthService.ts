@@ -51,18 +51,18 @@ export class AuthService {
     }
 
     let isTempPassword = false;
-    let passwordValid = false;
 
     if (user.temp_password_hash) {
+      // temporary password is active — only allow login with it
       isTempPassword = await bcrypt.compare(password, user.temp_password_hash);
-    }
-
-    if (!isTempPassword) {
-      passwordValid = await bcrypt.compare(password, user.password_hash);
-    }
-
-    if (!isTempPassword && !passwordValid) {
-      throw new Error("Email or password is incorrect.");
+      if (!isTempPassword) {
+        throw new Error("Email or password is incorrect.");
+      }
+    } else {
+      const passwordValid = await bcrypt.compare(password, user.password_hash);
+      if (!passwordValid) {
+        throw new Error("Email or password is incorrect.");
+      }
     }
 
     if (isTempPassword) {

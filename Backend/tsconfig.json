@@ -5,10 +5,9 @@
     "rewriteRelativeImportExtensions": true,
     "erasableSyntaxOnly": true,
     "verbatimModuleSyntax": true,
-    "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": "./src",
+    "outDir": "./dist/out-tsc",
     "strict": true,
     "skipLibCheck": true
-  },
-  "include": ["src/**/*"]
+  }
 }

@@ -2,9 +2,11 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ["dev"]
   pull_request:
-    branches: ["main"]
+    branches: ["dev"]
+
+# run on push or pull request to dev branch
 
 jobs:
   frontend-build:
@@ -63,7 +65,7 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm test --code-coverage
+        run: npm run test:coverage
 
       - name: Security Audit
         run: npm audit --audit-level=critical

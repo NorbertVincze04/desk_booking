@@ -5,6 +5,7 @@
   "main": "server.ts",
   "scripts": {
     "test": "tsx --test tests/unit/*.test.ts",
+    "test:coverage": "c8 tsx --test tests/unit/*.test.ts",
     "build": "tsc",
     "start": "node src/server.ts",
     "ca": "tsx write-ca.ts",

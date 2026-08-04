@@ -35,4 +35,6 @@ jobs:
           git fetch origin main dev
           git checkout -B main origin/main
           git merge --no-ff --no-edit origin/dev
-          git push origin main
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

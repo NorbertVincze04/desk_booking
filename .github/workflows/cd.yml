@@ -1,5 +1,4 @@
 name: CD
-run-name: ${{ github.event.workflow_run.display_title || github.event.workflow_run.head_commit.message || format('CD: {0}', github.event.workflow_run.head_branch) }}
 
 permissions:
   contents: write

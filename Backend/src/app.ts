@@ -9,6 +9,8 @@ import { errorHandler } from "./middleware/error.middleware.ts";
 export function createApp() {
   const app = express(); // create express server
 
+  // app.set("trust proxy", 1); // used if backend is behind a proxy (e.g., when deployed on a cloud provider like azure)
+
   app.use(
     cors({
       origin: CORS_ORIGIN,

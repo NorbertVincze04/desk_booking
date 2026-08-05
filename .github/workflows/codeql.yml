@@ -1,17 +1,17 @@
 name: "CodeQL"
 
 on:
-  push:
-    branches: ["dev", "main"]
-  pull_request:
-    branches: ["dev", "main"]
-  schedule:
-    - cron: "00 6 * * 2" # run every Tuesday at 6:00
+  workflow_run:
+    workflows:
+      - CD
+    types:
+      - completed
 
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
     runs-on: "ubuntu-latest"
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     permissions:
       # required for all workflows
       security-events: write
@@ -32,7 +32,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
+        with:
+          ref: main
 
       # initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL

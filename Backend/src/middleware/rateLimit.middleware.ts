@@ -20,14 +20,5 @@ export const bookingRateLimiter = rateLimit({
   },
 });
 
-export const generalApiRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
 // Auth routes: strict
 // Booking routes: medium
-// Read-only routes: more relaxed
-// Admin routes: strict

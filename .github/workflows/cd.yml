@@ -2,6 +2,7 @@ name: CD
 
 permissions:
   contents: write
+  workflows: write
 
 on:
   workflow_run:
@@ -14,7 +15,7 @@ jobs:
   promote-to-main:
     name: Promote dev → main
     runs-on: ubuntu-latest
-    # only run when CI passed
+    # only run when CI pipeline passed
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
@@ -34,4 +35,6 @@ jobs:
           git fetch origin main dev
           git checkout -B main origin/main
           git merge --no-ff --no-edit origin/dev
-          git push origin main
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

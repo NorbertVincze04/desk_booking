@@ -7,7 +7,7 @@ import { BookingService } from "./services/BookingService.ts";
 // call function from app.ts to create app
 const app = createApp();
 
-const CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+const CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 async function cleanupPastBookings() {
   try {

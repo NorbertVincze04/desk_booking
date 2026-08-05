@@ -4,18 +4,18 @@ permissions:
   contents: write
 
 on:
-  workflow_dispatch:
   workflow_run:
     workflows: ["CI"]
-    types: [completed]
+    branches: ["dev"]
+    types:
+      - completed
 
 jobs:
   promote-to-main:
     name: Promote dev → main
     runs-on: ubuntu-latest
-    # For workflow_run: only promote when CI succeeded on push to dev.
-    # For manual runs: allow execution via workflow_dispatch for debugging.
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'dev') }}
+    # only run when CI passed
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout repository

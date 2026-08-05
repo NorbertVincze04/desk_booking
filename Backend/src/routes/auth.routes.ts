@@ -14,11 +14,11 @@ authRouter.post("/login", authRateLimiter, (req, res) =>
   AuthController.login(req, res),
 );
 
-authRouter.post("/reset-password", (req, res) =>
+authRouter.post("/reset-password", authRateLimiter, (req, res) =>
   AuthController.resetPassword(req, res),
 );
 
-authRouter.post("/temp-password", (req, res) =>
+authRouter.post("/temp-password", authRateLimiter, (req, res) =>
   AuthController.generateTempPassword(req, res),
 );
 

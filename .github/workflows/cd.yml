@@ -2,14 +2,10 @@ name: CD
 
 permissions:
   contents: write
-  workflows: write
 
 on:
   workflow_run:
     workflows: ["CI"]
-    branches: ["dev"]
-    types:
-      - completed
 
 jobs:
   promote-to-main:
@@ -35,6 +31,4 @@ jobs:
           git fetch origin main dev
           git checkout -B main origin/main
           git merge --no-ff --no-edit origin/dev
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          git push origin main

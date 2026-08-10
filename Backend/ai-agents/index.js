@@ -29,7 +29,7 @@ const aiMsg = await llm.invoke([
     "system",
     "You are a helpful assistant that translates English to French. Translate the user sentence.",
   ],
-  ["human", "I love the LLM Farm"],
+  ["human", "hello world"],
 ]);
 
 console.log(aiMsg.content);

@@ -6,7 +6,7 @@ permissions:
 on:
   workflow_run:
     workflows:
-      - CI
+      - Security AI Gate
     types:
       - completed
 
@@ -14,8 +14,8 @@ jobs:
   promote-to-main:
     name: Promote dev → main
     runs-on: ubuntu-latest
-    # only run when CI passed
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # only run when Security AI Gate passed for a direct push on dev (never PR-triggered runs)
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'dev' && github.event.workflow_run.event == 'push' }}
 
     steps:
       - name: Checkout repository
@@ -35,29 +35,3 @@ jobs:
           git checkout -B main origin/main
           git merge --no-ff --no-edit origin/dev
           git push origin main
-
-  run-ai-agent:
-    name: Run AI Agent
-    runs-on: ubuntu-latest
-    needs: promote-to-main
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: Backend/ai-agents/package-lock.json
-
-      - name: Install AI agent dependencies
-        working-directory: Backend/ai-agents
-        run: npm ci
-
-      - name: Run AI agent
-        working-directory: Backend/ai-agents
-        env:
-          GENAIPLATFORM_FARM_SUBSCRIPTION_KEY: ${{ secrets.GENAIPLATFORM_FARM_SUBSCRIPTION_KEY }}
-        run: node index.js

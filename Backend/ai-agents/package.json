@@ -7,7 +7,9 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "analyze": "node index.js --reports-dir ../../security-reports --output-dir ../../security-reports",
+    "test": "echo \"No tests configured\""
   },
   "dependencies": {
     "@langchain/core": "^1.2.5",

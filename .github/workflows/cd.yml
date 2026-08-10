@@ -60,6 +60,4 @@ jobs:
         working-directory: Backend/ai-agents
         env:
           GENAIPLATFORM_FARM_SUBSCRIPTION_KEY: ${{ secrets.GENAIPLATFORM_FARM_SUBSCRIPTION_KEY }}
-          HTTP_PROXY: http://rb-proxy-de.bosch.com:8080
-          HTTPS_PROXY: http://rb-proxy-de.bosch.com:8080
         run: node index.js

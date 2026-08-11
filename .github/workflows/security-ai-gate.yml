@@ -93,6 +93,10 @@ jobs:
         id: run_agent
         working-directory: Backend/ai-agents
         shell: bash
+        env:
+          GENAIPLATFORM_FARM_SUBSCRIPTION_KEY: ${{ secrets.GENAIPLATFORM_FARM_SUBSCRIPTION_KEY }}
+          HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
+          https_proxy: ${{ secrets.HTTPS_PROXY }}
         run: |
           set +e
           node index.js --reports-dir "../../$AI_SECURITY_REPORTS_DIR" --output-dir "../../$AI_SECURITY_OUTPUT_DIR"

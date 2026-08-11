@@ -36,21 +36,26 @@ export async function run() {
   let response;
   try {
     response = await llm.invoke([
+      //       [
+      //         "system",
+      //         `You are a senior application security engineer reviewing automated scan results for a web application.
+      // Analyze the provided data and produce a security report in plain Markdown covering:
+      // 1. Overall risk assessment and a clear ALLOW or BLOCK recommendation for merging
+      // 2. The most urgent findings and why they matter
+      // 3. Any patterns or attack chains you notice across findings
+      // 4. Concrete, prioritized remediation steps
+
+      // Be direct and specific. Do not repeat raw numbers without context.`,
+      //       ],
+      //       [
+      //         "human",
+      //         `Here are the security scan results:\n\`\`\`json\n${context}\n\`\`\``,
+      //       ],
       [
         "system",
-        `You are a senior application security engineer reviewing automated scan results for a web application.
-Analyze the provided data and produce a security report in plain Markdown covering:
-1. Overall risk assessment and a clear ALLOW or BLOCK recommendation for merging
-2. The most urgent findings and why they matter
-3. Any patterns or attack chains you notice across findings
-4. Concrete, prioritized remediation steps
-
-Be direct and specific. Do not repeat raw numbers without context.`,
+        "You are a helpful assistant that translates English to French. Translate the user sentence.",
       ],
-      [
-        "human",
-        `Here are the security scan results:\n\`\`\`json\n${context}\n\`\`\``,
-      ],
+      ["human", "hello world"],
     ]);
   } catch (err) {
     console.error(`AI security agent failed: ${err.message}`);

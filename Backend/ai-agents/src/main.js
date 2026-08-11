@@ -8,18 +8,9 @@ import {
   resolvePaths,
   writeFileUtf8,
 } from "./files.js";
-import {
-  aggregateCounts,
-  classifyRisk,
-  suggestActions,
-  summarizeCodeQlAlerts,
-  summarizeCodeQlFromSarif,
-  summarizeNpmAudit,
-  topFindings,
-} from "./summarizers.js";
-import { buildMarkdownReport } from "./reporting.js";
+import { llm } from "./llm.js";
 
-export function run() {
+export async function run() {
   const args = parseArgs(process.argv.slice(2));
   const reportsDir =
     args["reports-dir"] || process.env.SECURITY_REPORTS_DIR || "./reports";
@@ -29,59 +20,53 @@ export function run() {
   const files = resolvePaths(reportsDir, outputDir);
   ensureDir(path.dirname(files.summaryJson));
 
-  const backendAudit = readJsonIfExists(files.backendAudit, {});
-  const frontendAudit = readJsonIfExists(files.frontendAudit, {});
+  const backendAudit = readJsonIfExists(files.backendAudit, null);
+  const frontendAudit = readJsonIfExists(files.frontendAudit, null);
   const codeqlSarif = readJsonIfExists(files.codeqlSarif, null);
-  const codeqlAlerts = readJsonIfExists(files.codeqlAlerts, null);
   const dependencyChanges = readTextIfExists(files.dependencyChanges, "");
 
-  const backendSummary = summarizeNpmAudit("npm-audit-backend", backendAudit);
-  const frontendSummary = summarizeNpmAudit(
-    "npm-audit-frontend",
-    frontendAudit,
+  const context = JSON.stringify(
+    { backendAudit, frontendAudit, codeqlSarif, dependencyChanges },
+    null,
+    2,
   );
 
-  const codeqlSummary = codeqlSarif
-    ? summarizeCodeQlFromSarif(codeqlSarif)
-    : summarizeCodeQlAlerts(codeqlAlerts);
+  console.log("Calling AI security agent...");
 
-  const summaries = [backendSummary, frontendSummary, codeqlSummary];
-  const counts = aggregateCounts(summaries);
-  const { decision, risk } = classifyRisk(counts);
-  const highlights = topFindings(summaries);
-  const nextActions = suggestActions(counts, dependencyChanges);
+  let response;
+  try {
+    response = await llm.invoke([
+      [
+        "system",
+        `You are a senior application security engineer reviewing automated scan results for a web application.
+Analyze the provided data and produce a security report in plain Markdown covering:
+1. Overall risk assessment and a clear ALLOW or BLOCK recommendation for merging
+2. The most urgent findings and why they matter
+3. Any patterns or attack chains you notice across findings
+4. Concrete, prioritized remediation steps
+
+Be direct and specific. Do not repeat raw numbers without context.`,
+      ],
+      [
+        "human",
+        `Here are the security scan results:\n\`\`\`json\n${context}\n\`\`\``,
+      ],
+    ]);
+  } catch (err) {
+    console.error(`AI security agent failed: ${err.message}`);
+    process.exit(1);
+  }
+
+  const report = response.content;
   const generatedAt = new Date().toISOString();
 
-  const markdown = buildMarkdownReport({
-    decision,
-    risk,
-    counts,
-    dependencyChanges,
-    summaries,
-    highlights,
-    nextActions,
-    generatedAt,
-  });
+  writeFileUtf8(files.summaryMd, report);
+  writeFileUtf8(
+    files.summaryJson,
+    JSON.stringify({ generatedAt, report, files }, null, 2),
+  );
 
-  const summaryJson = {
-    decision,
-    risk,
-    generatedAt,
-    counts,
-    summaries,
-    highlights,
-    nextActions,
-    files,
-  };
-
-  writeFileUtf8(files.summaryMd, markdown);
-  writeFileUtf8(files.summaryJson, JSON.stringify(summaryJson, null, 2));
-
-  console.log(markdown);
-  console.log(`\nSummary JSON written to: ${files.summaryJson}`);
-  console.log(`Summary Markdown written to: ${files.summaryMd}`);
-
-  if (decision === "block") {
-    process.exitCode = 1;
-  }
+  console.log(report);
+  console.log(`\nReport written to: ${files.summaryMd}`);
+  console.log(`JSON written to:   ${files.summaryJson}`);
 }

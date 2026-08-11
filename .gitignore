@@ -1,0 +1,3 @@
+# Security report artifacts generated locally — CI uploads these as GitHub Actions artifacts
+security-reports/
+ai-security-artifacts/

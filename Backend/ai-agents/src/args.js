@@ -1,3 +1,5 @@
+// parse command line arguments into an object
+
 export function parseArgs(argv) {
   const args = {};
 

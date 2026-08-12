@@ -7,7 +7,43 @@ import {
   resolvePaths,
   writeFileUtf8,
 } from "./files.js";
-import { llm } from "./llm.js";
+import { azureOpenAIEndpoint, llm, proxyUrl } from "./llm.js";
+
+function buildConnectionDiagnostics() {
+  const endpointHost = new URL(azureOpenAIEndpoint).host;
+  const diagnostics = [
+    `Endpoint host: ${endpointHost}`,
+    `Proxy configured: ${proxyUrl ? "yes" : "no"}`,
+    `GitHub Actions: ${process.env.GITHUB_ACTIONS === "true" ? "yes" : "no"}`,
+  ];
+
+  if (!proxyUrl) {
+    diagnostics.push(
+      "No proxy env var is set. If this endpoint is internal-only, use a self-hosted runner or a reachable corporate proxy.",
+    );
+    return diagnostics;
+  }
+
+  try {
+    const proxyHost = new URL(proxyUrl).hostname;
+    diagnostics.push(`Proxy host: ${proxyHost}`);
+
+    if (proxyHost === "127.0.0.1" || proxyHost === "localhost") {
+      diagnostics.push(
+        "The configured proxy points to runner localhost. This works only on your machine; GitHub-hosted runners cannot use your local 127.0.0.1 proxy.",
+      );
+      diagnostics.push(
+        "Use a self-hosted runner on the required network or configure HTTP_PROXY/HTTPS_PROXY secrets to a proxy reachable from GitHub Actions.",
+      );
+    }
+  } catch {
+    diagnostics.push(
+      "Proxy URL could not be parsed. Verify HTTP_PROXY/HTTPS_PROXY secret format.",
+    );
+  }
+
+  return diagnostics;
+}
 
 export async function run() {
   const args = parseArgs(process.argv.slice(2));
@@ -58,6 +94,11 @@ export async function run() {
     ]);
   } catch (err) {
     console.error(`AI security agent failed: ${err.message}`);
+    if (err.message === "Connection error.") {
+      for (const line of buildConnectionDiagnostics()) {
+        console.error(line);
+      }
+    }
     process.exit(1);
   }
 

@@ -19,7 +19,7 @@ env:
 jobs:
   security-gate:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.head_repository.full_name == github.repository }}
 
     steps:
       - name: Checkout repository
@@ -95,10 +95,16 @@ jobs:
         shell: bash
         env:
           GENAIPLATFORM_FARM_SUBSCRIPTION_KEY: ${{ secrets.GENAIPLATFORM_FARM_SUBSCRIPTION_KEY }}
+          HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
           HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
-          https_proxy: ${{ secrets.HTTPS_PROXY }}
         run: |
           set +e
+          if [ -z "${GENAIPLATFORM_FARM_SUBSCRIPTION_KEY:-}" ]; then
+            echo "GENAIPLATFORM_FARM_SUBSCRIPTION_KEY is not configured."
+            echo "exit_code=2" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           node index.js --reports-dir "../../$AI_SECURITY_REPORTS_DIR" --output-dir "../../$AI_SECURITY_OUTPUT_DIR"
           exit_code=$?
           echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"

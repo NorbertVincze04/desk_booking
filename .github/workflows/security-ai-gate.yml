@@ -1,0 +1,171 @@
+name: Security AI Gate
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: write
+
+env:
+  AI_SECURITY_REPORTS_DIR: ai-security-artifacts/reports
+  AI_SECURITY_OUTPUT_DIR: ai-security-artifacts/output
+
+jobs:
+  security-gate:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Frontend dependencies
+        working-directory: Frontend
+        run: npm ci
+
+      - name: Install Backend dependencies
+        working-directory: Backend
+        run: npm ci
+
+      - name: Install AI agent dependencies
+        working-directory: Backend/ai-agents
+        run: npm ci
+
+      - name: Create report directory
+        run: mkdir -p "$AI_SECURITY_REPORTS_DIR" "$AI_SECURITY_OUTPUT_DIR"
+
+      - name: Generate Frontend npm audit report
+        working-directory: Frontend
+        run: npm audit --json > ../$AI_SECURITY_REPORTS_DIR/frontend-audit.json || true
+
+      - name: Generate Backend npm audit report
+        working-directory: Backend
+        run: npm audit --json > ../$AI_SECURITY_REPORTS_DIR/backend-audit.json || true
+
+      - name: Generate dependency change report
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git rev-parse HEAD~1 >/dev/null 2>&1; then
+            git diff --unified=0 HEAD~1..HEAD -- Backend/package.json Backend/package-lock.json Frontend/package.json Frontend/package-lock.json > "$AI_SECURITY_REPORTS_DIR/dependency-changes.txt" || true
+          else
+            : > "$AI_SECURITY_REPORTS_DIR/dependency-changes.txt"
+          fi
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+          build-mode: none
+
+      - name: Perform CodeQL analysis and generate SARIF
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:javascript-typescript"
+          output: ${{ env.AI_SECURITY_REPORTS_DIR }}
+
+      - name: Normalize CodeQL SARIF file name
+        shell: bash
+        run: |
+          set -euo pipefail
+          sarif_file="$(find "$AI_SECURITY_REPORTS_DIR" -type f -name '*.sarif' | head -n 1 || true)"
+          if [ -n "$sarif_file" ]; then
+            cp "$sarif_file" "$AI_SECURITY_REPORTS_DIR/codeql.sarif"
+          else
+            echo '{"runs":[]}' > "$AI_SECURITY_REPORTS_DIR/codeql.sarif"
+          fi
+
+      - name: Run AI Security Agent
+        id: run_agent
+        working-directory: Backend/ai-agents
+        shell: bash
+        env:
+          GENAIPLATFORM_FARM_SUBSCRIPTION_KEY: ${{ secrets.GENAIPLATFORM_FARM_SUBSCRIPTION_KEY }}
+          HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
+          https_proxy: ${{ secrets.HTTPS_PROXY }}
+        run: |
+          set +e
+          node index.js --reports-dir "../../$AI_SECURITY_REPORTS_DIR" --output-dir "../../$AI_SECURITY_OUTPUT_DIR"
+          exit_code=$?
+          echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Upload Security Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-security-artifacts
+          path: ai-security-artifacts
+
+      - name: Comment report on pull request
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const reportPath = 'ai-security-artifacts/output/ai-security-report.md';
+            const body = fs.existsSync(reportPath)
+              ? fs.readFileSync(reportPath, 'utf8')
+              : '<!-- ai-security-agent -->\n# AI Security Agent Report\n\nNo report was generated.';
+
+            const { owner, repo } = context.repo;
+            const prs = context.payload.workflow_run?.pull_requests || [];
+            if (!prs.length) {
+              core.info('No pull request associated with this workflow_run; skipping PR comment.');
+              return;
+            }
+
+            const issue_number = prs[0].number;
+            const marker = '<!-- ai-security-agent -->';
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+
+            const existing = comments.find(
+              (c) => c.user?.type === 'Bot' && c.body?.includes(marker),
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body,
+              });
+            }
+
+      - name: Enforce security gate
+        shell: bash
+        run: |
+          if [ "${{ steps.run_agent.outputs.exit_code }}" != "0" ]; then
+            echo "AI Security Agent blocked this merge due to high/critical risk findings."
+            exit 1
+          fi
+
+          echo "AI Security Agent approved this change."

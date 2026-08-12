@@ -20,9 +20,7 @@ yarn-error.log*
 # Compiled files
 dist/
 build/
-*.js
 *.js.map
-!*.config.js
 
 # Test coverage
 coverage/

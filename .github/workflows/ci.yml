@@ -31,9 +31,6 @@ jobs:
       - name: Run tests
         run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
 
-      - name: Security Audit
-        run: npm audit --audit-level=critical
-
       - name: Build application
         run: npm run build
 
@@ -65,9 +62,6 @@ jobs:
 
       - name: Run tests
         run: npm run test:coverage
-
-      - name: Security Audit
-        run: npm audit --audit-level=critical
 
       - name: Build application
         run: npm run build

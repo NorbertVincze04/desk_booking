@@ -23,6 +23,10 @@ authRouter.post("/temp-password", authRateLimiter, (req, res) =>
 );
 
 // admin-only route to get all users
-authRouter.get("/users", authMiddleware, adminMiddleware, (req, res) =>
-  AuthController.getUsers(req, res),
+authRouter.get(
+  "/users",
+  authRateLimiter,
+  authMiddleware,
+  adminMiddleware,
+  (req, res) => AuthController.getUsers(req, res),
 );

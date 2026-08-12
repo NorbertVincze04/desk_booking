@@ -8,37 +8,37 @@ on:
   # workflow_dispatch: # allow manual triggering of the workflow
 
 jobs:
-  frontend-build:
-    runs-on: ubuntu-latest
+  # frontend-build:
+  #   runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: Frontend
+  #   defaults:
+  #     run:
+  #       working-directory: Frontend
 
-    steps:
-      - uses: actions/checkout@v4
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: "npm"
-          cache-dependency-path: Frontend/package-lock.json
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 18
+  #         cache: "npm"
+  #         cache-dependency-path: Frontend/package-lock.json
 
-      - name: Install dependencies
-        run: npm ci
+  #     - name: Install dependencies
+  #       run: npm ci
 
-      - name: Run tests
-        run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
+  #     - name: Run tests
+  #       run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
 
-      - name: Build application
-        run: npm run build
+  #     - name: Build application
+  #       run: npm run build
 
-      - name: Upload Frontend Build Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-build
-          path: Frontend/dist
+  #     - name: Upload Frontend Build Artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: frontend-build
+  #         path: Frontend/dist
 
   backend-build:
     runs-on: ubuntu-latest

@@ -19,6 +19,7 @@ env:
 jobs:
   security-gate:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository }}
 
     steps:
       - name: Validate workflow_run context
@@ -53,6 +54,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
+          node-version: 20
           node-version: 20
 
       - name: Install Frontend dependencies

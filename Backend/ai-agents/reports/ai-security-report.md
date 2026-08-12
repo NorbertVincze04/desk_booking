@@ -1,1 +1,1 @@
-Bonjour le monde
+Bonjour le monde, je suis programmeur et je veux apprendre le français.

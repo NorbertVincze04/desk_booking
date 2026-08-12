@@ -1,4 +1,4 @@
-name: Security AI Gate
+name: Security AI Agent
 
 on:
   workflow_run:

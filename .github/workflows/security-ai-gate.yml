@@ -19,9 +19,31 @@ env:
 jobs:
   security-gate:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.head_repository.full_name == github.repository }}
 
     steps:
+      - name: Validate workflow_run context
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          conclusion="${{ github.event.workflow_run.conclusion }}"
+          head_repo="${{ github.event.workflow_run.head_repository.full_name }}"
+          current_repo="${{ github.repository }}"
+
+          echo "workflow_run.conclusion=$conclusion"
+          echo "workflow_run.head_repository.full_name=$head_repo"
+          echo "github.repository=$current_repo"
+
+          if [ "$conclusion" != "success" ]; then
+            echo "Security AI Gate failed: upstream CI conclusion is '$conclusion'."
+            exit 1
+          fi
+
+          if [ "$head_repo" != "$current_repo" ]; then
+            echo "Security AI Gate failed: head repository '$head_repo' does not match '$current_repo'."
+            exit 1
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:

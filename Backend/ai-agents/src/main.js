@@ -54,7 +54,7 @@ export async function run() {
         "system",
         "You are a helpful assistant that translates English to French. Translate the user sentence.",
       ],
-      ["human", "Hello world, I am a programmer and I want to learn French."],
+      ["human", "hello world, I am a programmer and I want to learn French."],
     ]);
   } catch (err) {
     console.error(`AI security agent failed: ${err.message}`);

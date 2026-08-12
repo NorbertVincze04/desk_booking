@@ -121,14 +121,56 @@ jobs:
           HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
         run: |
           set +e
+          output_dir="../../$AI_SECURITY_OUTPUT_DIR"
+          report_path="$output_dir/ai-security-report.md"
+          summary_path="$output_dir/ai-security-summary.json"
+          log_path="$output_dir/ai-security-agent.log"
+
+          mkdir -p "$output_dir"
+
           if [ -z "${GENAIPLATFORM_FARM_SUBSCRIPTION_KEY:-}" ]; then
             echo "GENAIPLATFORM_FARM_SUBSCRIPTION_KEY is not configured."
+            {
+              echo "<!-- ai-security-agent -->"
+              echo "# AI Security Agent Report"
+              echo
+              echo "Result: BLOCK"
+              echo
+              echo "Reason: Missing GENAIPLATFORM_FARM_SUBSCRIPTION_KEY secret."
+              echo
+              echo "Action: Configure the secret in repository settings and rerun the workflow."
+            } > "$report_path"
+            printf '{"generatedAt":"%s","decision":"BLOCK","reason":"Missing GENAIPLATFORM_FARM_SUBSCRIPTION_KEY"}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$summary_path"
             echo "exit_code=2" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          node index.js --reports-dir "../../$AI_SECURITY_REPORTS_DIR" --output-dir "../../$AI_SECURITY_OUTPUT_DIR"
+          node index.js --reports-dir "../../$AI_SECURITY_REPORTS_DIR" --output-dir "$output_dir" > >(tee "$log_path") 2>&1
           exit_code=$?
+
+          if [ ! -f "$report_path" ]; then
+            {
+              echo "<!-- ai-security-agent -->"
+              echo "# AI Security Agent Report"
+              echo
+              echo "Result: BLOCK"
+              echo
+              echo "Reason: AI agent execution did not produce a report file."
+              echo
+              echo "Agent exit code: $exit_code"
+              echo
+              echo "## Agent Log Excerpt"
+              echo
+              echo '```text'
+              tail -n 120 "$log_path" 2>/dev/null || echo "No agent log was captured."
+              echo '```'
+            } > "$report_path"
+          fi
+
+          if [ ! -f "$summary_path" ]; then
+            printf '{"generatedAt":"%s","decision":"BLOCK","reason":"AI agent execution failed before summary generation","exitCode":%s}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$exit_code" > "$summary_path"
+          fi
+
           echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
           exit 0
 
@@ -138,6 +180,25 @@ jobs:
         with:
           name: ai-security-artifacts
           path: ai-security-artifacts
+
+      - name: Publish report in workflow summary
+        if: always()
+        shell: bash
+        run: |
+          report_path="ai-security-artifacts/output/ai-security-report.md"
+          if [ -f "$report_path" ]; then
+            {
+              echo "## AI Security Agent Report"
+              echo
+              cat "$report_path"
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "## AI Security Agent Report"
+              echo
+              echo "No report file was generated."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Comment report on pull request
         if: always()

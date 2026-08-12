@@ -67,6 +67,10 @@ jobs:
         working-directory: Backend/ai-agents
         run: npm ci
 
+      - name: Debug undici version
+        working-directory: Backend/ai-agents
+        run: npm ls undici
+
       - name: Create report directory
         run: mkdir -p "$AI_SECURITY_REPORTS_DIR" "$AI_SECURITY_OUTPUT_DIR"
 

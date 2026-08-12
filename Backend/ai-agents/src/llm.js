@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config({ override: true });
 import { fetch, ProxyAgent } from "undici";
 import { AzureChatOpenAI } from "@langchain/openai";
 

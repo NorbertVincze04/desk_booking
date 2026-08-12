@@ -1,5 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config({ override: true });
 import path from "node:path";
 import { parseArgs } from "./args.js";
 import {

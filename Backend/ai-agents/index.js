@@ -1,4 +1,5 @@
-import "dotenv/config";
+import dotenv from "dotenv";
+dotenv.config({ override: true });
 import { fetch, ProxyAgent } from "undici";
 import { AzureChatOpenAI } from "@langchain/openai";
 
@@ -10,6 +11,10 @@ const proxyUrl =
 
 const proxyAgent = proxyUrl ? new ProxyAgent(proxyUrl) : undefined;
 
+const proxiedFetch = proxyAgent
+  ? (url, init) => fetch(url, { ...init, dispatcher: proxyAgent })
+  : undefined;
+
 const llm = new AzureChatOpenAI({
   apiKey: process.env.GENAIPLATFORM_FARM_SUBSCRIPTION_KEY,
   azureOpenAIApiDeploymentName: "gpt-5-nano-2025-08-07",
@@ -19,8 +24,7 @@ const llm = new AzureChatOpenAI({
       "genaiplatform-farm-subscription-key":
         process.env.GENAIPLATFORM_FARM_SUBSCRIPTION_KEY,
     },
-    fetch: proxyAgent ? fetch : undefined,
-    fetchOptions: proxyAgent ? { dispatcher: proxyAgent } : undefined,
+    fetch: proxiedFetch,
   },
   openAIApiVersion: "2025-04-01-preview",
 });

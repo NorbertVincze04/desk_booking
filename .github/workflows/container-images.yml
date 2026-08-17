@@ -1,0 +1,67 @@
+name: Build and Push Container Images
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push-images:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Podman
+        uses: redhat-actions/podman-install@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check Podman version
+        run: podman version
+
+      - name: Prepare image names
+        run: |
+          OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "FRONTEND_IMAGE=ghcr.io/$OWNER_LOWER/desk-reservation-frontend" >> $GITHUB_ENV
+          echo "BACKEND_IMAGE=ghcr.io/$OWNER_LOWER/desk-reservation-backend" >> $GITHUB_ENV
+
+      - name: Login to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | podman login ghcr.io \
+            --username "${{ github.actor }}" \
+            --password-stdin
+
+      - name: Build frontend image
+        run: |
+          podman build \
+            --format docker \
+            --label org.opencontainers.image.source=https://github.com/${{ github.repository }} \
+            -f Frontend/Containerfile \
+            -t $FRONTEND_IMAGE:${{ github.sha }} \
+            -t $FRONTEND_IMAGE:latest \
+            Frontend
+
+      - name: Build backend image
+        run: |
+          podman build \
+            --format docker \
+            --label org.opencontainers.image.source=https://github.com/${{ github.repository }} \
+            -f Backend/Containerfile \
+            -t $BACKEND_IMAGE:${{ github.sha }} \
+            -t $BACKEND_IMAGE:latest \
+            Backend
+
+      - name: Push frontend image
+        run: |
+          podman push $FRONTEND_IMAGE:${{ github.sha }}
+          podman push $FRONTEND_IMAGE:latest
+
+      - name: Push backend image
+        run: |
+          podman push $BACKEND_IMAGE:${{ github.sha }}
+          podman push $BACKEND_IMAGE:latest

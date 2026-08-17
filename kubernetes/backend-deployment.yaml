@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: backend
+  namespace: desk-reservation
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: backend
+
+  template:
+    metadata:
+      labels:
+        app: backend
+
+    spec:
+      containers:
+        - name: backend
+
+          image: ghcr.io/norbertvincze04/desk-reservation-backend:latest
+
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 3000
+
+          env:
+            - name: PORT
+              value: "3000"
+
+            - name: DATABASE_URL
+              value: "d36f1f4-psql-master-alias.node.dc1.cdts.ipz001.internal.bosch.cloud"
+
+            - name: JWT_SECRET
+              value: "BSAIDASBFUG6546547645HGBDUYVGDGVUYEIY75T57Y8743YTGR8ETIYHGTYUDTG758IRYGTF87IWY8"
+
+            - name: NODE_ENV
+              value: "production"

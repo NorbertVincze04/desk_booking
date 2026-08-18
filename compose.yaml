@@ -1,0 +1,40 @@
+# Podman Compose — Desk Reservation App
+# Run from this directory: podman-compose up --build
+#
+# Required env vars — copy .env.example to .env and fill in values before running.
+
+services:
+
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Containerfile
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      # CORS_ORIGIN points at the frontend as seen by a browser on the host
+      CORS_ORIGIN: "http://localhost"
+    networks:
+      - app-network
+    # Uncomment to expose backend directly on the host for debugging:
+    # ports:
+    #   - "3000:3000"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Containerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge

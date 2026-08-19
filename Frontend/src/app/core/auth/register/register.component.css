@@ -66,26 +66,9 @@ label {
   outline: none;
 }
 
-.form-submit {
+form app-action-button {
   align-self: center;
   margin-top: 10px;
-  background-color: #007bc0;
-  color: white;
-  border: 0;
-  padding: 10px 24px;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.form-submit:hover:not(:disabled) {
-  background-color: #0366a0;
-}
-
-.form-submit:disabled {
-  background-color: gray;
-  cursor: not-allowed;
 }
 
 .field-error {

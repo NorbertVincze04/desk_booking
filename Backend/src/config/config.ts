@@ -1,8 +1,10 @@
 import dotenv from "dotenv";
 import type { SignOptions } from "jsonwebtoken";
 
+// load settings from .env file
 dotenv.config();
 
+// configure app
 export const PORT = Number(process.env.PORT || 3000);
 export const CORS_ORIGIN = process.env.CORS_ORIGIN || "http://localhost:4200";
 export const JWT_SECRET =

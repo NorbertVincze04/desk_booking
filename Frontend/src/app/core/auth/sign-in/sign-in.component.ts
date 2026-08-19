@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ActionConfig } from '../../../shared/components/action-button/action-button.component';
 
 @Component({
   selector: 'app-sign-in',
@@ -15,8 +16,16 @@ export class SignInComponent {
   });
 
   loginError = '';
+  signInLoading = false;
 
   passwordVisible = false;
+
+  signInButtonConfig: ActionConfig = {
+    label: 'Sign In',
+    loadingLabel: 'Signing in...',
+    variant: 'primary',
+    disabled: false,
+  };
 
   constructor(
     private authService: AuthService,
@@ -24,15 +33,22 @@ export class SignInComponent {
   ) {}
 
   onSignIn() {
+    if (this.signInLoading) {
+      return;
+    }
+
     if (!this.signInForm.valid) {
       return;
     }
+
+    this.signInLoading = true;
 
     const emailValue = this.signInForm.get('email')?.value || '';
     const passwordValue = this.signInForm.get('password')?.value || '';
 
     this.authService.login(emailValue, passwordValue).subscribe({
       next: (result) => {
+        this.signInLoading = false;
         this.loginError = '';
         if (result.isTempPassword) {
           this.router.navigate(['/reset-pass']);
@@ -41,9 +57,17 @@ export class SignInComponent {
         }
       },
       error: (error) => {
+        this.signInLoading = false;
         this.loginError = error.message;
       },
     });
+  }
+
+  get signInActionConfig(): ActionConfig {
+    return {
+      ...this.signInButtonConfig,
+      disabled: this.signInForm.invalid || this.signInLoading,
+    };
   }
 
   onForgotPassword() {

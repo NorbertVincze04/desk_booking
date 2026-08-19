@@ -1,6 +1,8 @@
 import { BookingRepository } from "../repositories/BookingRepository.ts";
 import type { Booking, BookingRequest } from "../types/booking.types.ts";
 
+// implements CRUD
+
 export class BookingService {
   static async getAllBookings(): Promise<Booking[]> {
     return BookingRepository.getAllBookings();
@@ -23,5 +25,9 @@ export class BookingService {
 
   static async deleteBooking(id: number): Promise<number | null> {
     return BookingRepository.deleteBooking(id);
+  }
+
+  static async deletePastBookings(): Promise<number> {
+    return BookingRepository.deletePastBookings();
   }
 }

@@ -46,6 +46,7 @@ export function authMiddleware(
     });
   }
 }
+<<<<<<< HEAD
 
 export function adminMiddleware(
   req: Request,
@@ -86,3 +87,5 @@ export function errorHandler(
     message: err.message || "Internal server error",
   });
 }
+=======
+>>>>>>> f3fb716ba32bb359a2f79b2df8129ac1fc64d985

@@ -31,9 +31,11 @@
         </button>
       </div>
     </div>
-    <button type="submit" class="form-submit" [disabled]="tempPassForm.invalid">
-      Generate Temporary Password
-    </button>
+    <app-action-button
+      buttonType="submit"
+      [config]="generateActionConfig"
+      [isLoading]="tempPasswordLoading"
+    ></app-action-button>
     <div *ngIf="errorMessage" class="form-error">{{ errorMessage }}</div>
   </form>
 
@@ -47,14 +49,10 @@
         class="form-control temp-password-input"
         id="tempPassword"
       />
-      <button
-        type="button"
-        class="copy-button"
-        (click)="copyToClipboard()"
-        title="Copy to clipboard"
-      >
-        <i class="fas fa-copy"></i>
-      </button>
+      <app-action-button
+        [config]="copyButtonConfig"
+        (action)="copyToClipboard()"
+      ></app-action-button>
     </div>
     <p class="temp-password-note">
       This temporary password can be used only once. Use it to sign in and you

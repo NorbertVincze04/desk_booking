@@ -74,13 +74,11 @@
         Passwords do not match.
       </div>
     </div>
-    <button
-      type="submit"
-      class="form-submit"
-      [disabled]="resetPassForm.invalid"
-    >
-      Reset Password
-    </button>
+    <app-action-button
+      buttonType="submit"
+      [config]="resetActionConfig"
+      [isLoading]="resetLoading"
+    ></app-action-button>
     <div *ngIf="errorMessage" class="form-error">{{ errorMessage }}</div>
   </form>
 

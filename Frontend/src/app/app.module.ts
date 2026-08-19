@@ -15,6 +15,7 @@ import { routes } from './app-routes';
 import { AppComponent } from './app.component';
 
 import {
+  HTTP_INTERCEPTORS,
   provideHttpClient,
   withInterceptorsFromDi,
 } from '@angular/common/http';
@@ -26,6 +27,7 @@ import { RegisterComponent } from './core/auth/register/register.component';
 import { TempPassComponent } from './core/auth/temp-pass/temp-pass.component';
 import { ResetPassComponent } from './core/auth/reset-pass/reset-pass.component';
 import { AdminDashboardComponent } from './features/admin-dashboard/admin-dashboard.component';
+import { AuthTokenInterceptor } from './core/interceptors/auth-token.interceptor';
 
 @NgModule({
   declarations: [
@@ -62,6 +64,11 @@ import { AdminDashboardComponent } from './features/admin-dashboard/admin-dashbo
       },
     }),
     provideHttpClient(withInterceptorsFromDi()),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthTokenInterceptor,
+      multi: true,
+    },
   ],
   bootstrap: [AppComponent],
 })

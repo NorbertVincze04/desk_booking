@@ -27,16 +27,16 @@ export function validateRegisterRequest(data: any): {
   const errors: string[] = [];
 
   if (!data.fullName || typeof data.fullName !== "string") {
-    errors.push("fullName is required and must be a string");
+    errors.push("fullName is required");
   }
   if (!data.email || typeof data.email !== "string") {
-    errors.push("email is required and must be a string");
+    errors.push("email is required");
   }
   if (!data.password || typeof data.password !== "string") {
-    errors.push("password is required and must be a string");
+    errors.push("password is required");
   }
   if (!data.secretKey || typeof data.secretKey !== "string") {
-    errors.push("secretKey is required and must be a string");
+    errors.push("secretKey is required");
   }
 
   return {
@@ -52,10 +52,10 @@ export function validateLoginRequest(data: any): {
   const errors: string[] = [];
 
   if (!data.email || typeof data.email !== "string") {
-    errors.push("email is required and must be a string");
+    errors.push("email is required");
   }
   if (!data.password || typeof data.password !== "string") {
-    errors.push("password is required and must be a string");
+    errors.push("password is required");
   }
 
   return {
@@ -71,10 +71,10 @@ export function validateResetPasswordRequest(data: any): {
   const errors: string[] = [];
 
   if (!data.email || typeof data.email !== "string") {
-    errors.push("email is required and must be a string");
+    errors.push("email is required");
   }
   if (!data.newPassword || typeof data.newPassword !== "string") {
-    errors.push("newPassword is required and must be a string");
+    errors.push("newPassword is required");
   }
 
   return {
@@ -90,10 +90,10 @@ export function validateTempPasswordRequest(data: any): {
   const errors: string[] = [];
 
   if (!data.email || typeof data.email !== "string") {
-    errors.push("email is required and must be a string");
+    errors.push("email is required");
   }
   if (!data.secretKey || typeof data.secretKey !== "string") {
-    errors.push("secretKey is required and must be a string");
+    errors.push("secretKey is required");
   }
 
   return {

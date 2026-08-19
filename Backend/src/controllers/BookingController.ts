@@ -45,7 +45,7 @@ export class BookingController {
             data.booking_desk,
           );
 
-          return res.status(201).json({
+          return res.json({
             success: true,
             payload: booking,
           });

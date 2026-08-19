@@ -1,7 +1,7 @@
 .map {
   width: 100%;
   height: 700px;
-  background-image: url("./map.component.css");
+  background-image: url("../../../../assets/images/map.jpg");
   background-size: 100% 100%;
   background-position: center;
   background-repeat: no-repeat;
@@ -9,12 +9,13 @@
   flex-direction: column;
   align-items: center;
   position: relative;
+  border-radius: 8px;
 }
 
 .counter {
   width: 10%;
   background-color: greenyellow;
-  border: 2px solid black;
+  border: 1.5px solid black;
   color: black;
   text-align: center;
   padding: 5px;
@@ -22,6 +23,7 @@
   top: 3%;
   left: 50%;
   transform: translateX(-50%);
+  border-radius: 4px;
 }
 
 .buff-area {
@@ -55,6 +57,7 @@
   font-size: 0.7vw;
   font-weight: bold;
   padding-top: 14%;
+  border-radius: 2px;
 }
 
 .desk:hover {

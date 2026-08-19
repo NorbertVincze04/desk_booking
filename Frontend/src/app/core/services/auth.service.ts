@@ -33,29 +33,9 @@ export class AuthService {
     return this.currentUserSubject.value?.type;
   }
 
-  private extractErrorMessage(error: unknown): string {
-    if (error instanceof HttpErrorResponse) {
-      const backendMessage = error.error?.message;
-
-      if (typeof backendMessage === 'string' && backendMessage.trim()) {
-        return backendMessage;
-      }
-
-      if (typeof error.message === 'string' && error.message.trim()) {
-        return error.message;
-      }
-    }
-
-    if (error instanceof Error && error.message.trim()) {
-      return error.message;
-    }
-
-    return 'Something went wrong. Please try again.';
-  }
-
-  private rethrowApiError<T>(): MonoTypeOperatorFunction<T> {
+  private throwApiError<T>(): MonoTypeOperatorFunction<T> {
     return catchError((error: unknown) =>
-      throwError(() => new Error(this.extractErrorMessage(error))),
+      throwError(() => new Error('Server Error: Please try again later.')),
     );
   }
 
@@ -79,7 +59,7 @@ export class AuthService {
   }): Observable<boolean> {
     return this.http.post<any>(`${this.authUrl}/register`, userData).pipe(
       map((response) => !!response.success),
-      this.rethrowApiError(),
+      this.throwApiError(),
     );
   }
 
@@ -115,7 +95,7 @@ export class AuthService {
         map((response) => ({
           isTempPassword: !!response.payload?.isTempPassword,
         })),
-        this.rethrowApiError(),
+        this.throwApiError(),
       );
   }
 
@@ -138,7 +118,7 @@ export class AuthService {
       })
       .pipe(
         map((response) => !!response.success),
-        this.rethrowApiError(),
+        this.throwApiError(),
       );
   }
 
@@ -150,11 +130,11 @@ export class AuthService {
       })
       .pipe(
         map((response) => response.payload.tempPassword),
-        this.rethrowApiError(),
+        this.throwApiError(),
       );
   }
 
   isTokenValid(user: UserRecord | null): boolean {
-    return user ? !!user.token : false;
+    return user ? !!user.token : false; // '!!' to convert to boolean
   }
 }

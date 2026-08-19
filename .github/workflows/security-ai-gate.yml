@@ -1,0 +1,289 @@
+name: Security AI Agent
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: write
+
+env:
+  AI_SECURITY_REPORTS_DIR: ai-security-artifacts/reports
+  AI_SECURITY_OUTPUT_DIR: ai-security-artifacts/output
+
+jobs:
+  security-gate:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository }}
+
+    steps:
+      - name: Validate workflow_run context
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          conclusion="${{ github.event.workflow_run.conclusion }}"
+          head_repo="${{ github.event.workflow_run.head_repository.full_name }}"
+          current_repo="${{ github.repository }}"
+
+          echo "workflow_run.conclusion=$conclusion"
+          echo "workflow_run.head_repository.full_name=$head_repo"
+          echo "github.repository=$current_repo"
+
+          if [ "$conclusion" != "success" ]; then
+            echo "Security AI Gate failed: upstream CI conclusion is '$conclusion'."
+            exit 1
+          fi
+
+          if [ "$head_repo" != "$current_repo" ]; then
+            echo "Security AI Gate failed: head repository '$head_repo' does not match '$current_repo'."
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Frontend dependencies
+        working-directory: Frontend
+        run: npm ci
+
+      - name: Install Backend dependencies
+        working-directory: Backend
+        run: npm ci
+
+      - name: Install AI agent dependencies
+        working-directory: Backend/ai-agents
+        run: npm ci
+
+      - name: Debug undici version
+        working-directory: Backend/ai-agents
+        run: npm ls undici
+
+      - name: Create report directory
+        run: mkdir -p "$AI_SECURITY_REPORTS_DIR" "$AI_SECURITY_OUTPUT_DIR"
+
+      - name: Generate Frontend npm audit report
+        working-directory: Frontend
+        run: npm audit --json > ../$AI_SECURITY_REPORTS_DIR/frontend-audit.json || true
+
+      - name: Generate Backend npm audit report
+        working-directory: Backend
+        run: npm audit --json > ../$AI_SECURITY_REPORTS_DIR/backend-audit.json || true
+
+      - name: Generate dependency change report
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git rev-parse HEAD~1 >/dev/null 2>&1; then
+            git diff --unified=0 HEAD~1..HEAD -- Backend/package.json Backend/package-lock.json Frontend/package.json Frontend/package-lock.json > "$AI_SECURITY_REPORTS_DIR/dependency-changes.txt" || true
+          else
+            : > "$AI_SECURITY_REPORTS_DIR/dependency-changes.txt"
+          fi
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+          build-mode: none
+
+      - name: Perform CodeQL analysis and generate SARIF
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:javascript-typescript"
+          output: ${{ env.AI_SECURITY_REPORTS_DIR }}
+
+      - name: Normalize CodeQL SARIF file name
+        shell: bash
+        run: |
+          set -euo pipefail
+          sarif_file="$(find "$AI_SECURITY_REPORTS_DIR" -type f -name '*.sarif' | head -n 1 || true)"
+          if [ -n "$sarif_file" ]; then
+            cp "$sarif_file" "$AI_SECURITY_REPORTS_DIR/codeql.sarif"
+          else
+            echo '{"runs":[]}' > "$AI_SECURITY_REPORTS_DIR/codeql.sarif"
+          fi
+
+      - name: Run AI Security Agent
+        id: run_agent
+        working-directory: Backend/ai-agents
+        shell: bash
+        env:
+          GENAIPLATFORM_FARM_SUBSCRIPTION_KEY: ${{ secrets.GENAIPLATFORM_FARM_SUBSCRIPTION_KEY }}
+          HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
+          HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
+
+        run: |
+          set +e
+          output_dir="../../$AI_SECURITY_OUTPUT_DIR"
+          report_path="$output_dir/ai-security-report.md"
+          summary_path="$output_dir/ai-security-summary.json"
+          log_path="$output_dir/ai-security-agent.log"
+
+          mkdir -p "$output_dir"
+
+          if [ -z "${GENAIPLATFORM_FARM_SUBSCRIPTION_KEY:-}" ]; then
+            echo "GENAIPLATFORM_FARM_SUBSCRIPTION_KEY is not configured."
+            {
+              echo "<!-- ai-security-agent -->"
+              echo "# AI Security Agent Report"
+              echo
+              echo "Result: BLOCK"
+              echo
+              echo "Reason: Missing GENAIPLATFORM_FARM_SUBSCRIPTION_KEY secret."
+              echo
+              echo "Action: Configure the secret in repository settings and rerun the workflow."
+            } > "$report_path"
+            printf '{"generatedAt":"%s","decision":"BLOCK","reason":"Missing GENAIPLATFORM_FARM_SUBSCRIPTION_KEY"}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$summary_path"
+            echo "exit_code=2" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          proxy_url="${HTTPS_PROXY:-${HTTP_PROXY:-${https_proxy:-${http_proxy:-}}}}"
+          if [ -n "$proxy_url" ]; then
+            proxy_host="$(node -e "try { console.log(new URL(process.argv[1]).hostname); } catch { process.exit(1); }" "$proxy_url" 2>/dev/null)"
+            if [ "$proxy_host" = "127.0.0.1" ] || [ "$proxy_host" = "localhost" ]; then
+              echo "Configured proxy points to localhost and cannot be reached from a GitHub-hosted runner."
+              {
+                echo "<!-- ai-security-agent -->"
+                echo "# AI Security Agent Report"
+                echo
+                echo "Result: BLOCK"
+                echo
+                echo "Reason: The configured HTTP proxy points to localhost ($proxy_host)."
+                echo
+                echo "GitHub-hosted runners cannot reach your local proxy."
+                echo
+                echo "Action: Use a self-hosted runner on the required network or set HTTP_PROXY/HTTPS_PROXY secrets to a proxy reachable from GitHub Actions."
+              } > "$report_path"
+              printf '{"generatedAt":"%s","decision":"BLOCK","reason":"Proxy points to localhost","proxyHost":"%s"}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$proxy_host" > "$summary_path"
+              echo "exit_code=3" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
+          node index.js --reports-dir "../../$AI_SECURITY_REPORTS_DIR" --output-dir "$output_dir" > >(tee "$log_path") 2>&1
+          exit_code=$?
+
+          if [ ! -f "$report_path" ]; then
+            {
+              echo "<!-- ai-security-agent -->"
+              echo "# AI Security Agent Report"
+              echo
+              echo "Result: BLOCK"
+              echo
+              echo "Reason: AI agent execution did not produce a report file."
+              echo
+              echo "Agent exit code: $exit_code"
+              echo
+              echo "## Agent Log Excerpt"
+              echo
+              echo '```text'
+              tail -n 120 "$log_path" 2>/dev/null || echo "No agent log was captured."
+              echo '```'
+            } > "$report_path"
+          fi
+
+          if [ ! -f "$summary_path" ]; then
+            printf '{"generatedAt":"%s","decision":"BLOCK","reason":"AI agent execution failed before summary generation","exitCode":%s}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$exit_code" > "$summary_path"
+          fi
+
+          echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Upload Security Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-security-artifacts
+          path: ai-security-artifacts
+
+      - name: Publish report in workflow summary
+        if: always()
+        shell: bash
+        run: |
+          report_path="ai-security-artifacts/output/ai-security-report.md"
+          if [ -f "$report_path" ]; then
+            {
+              echo "## AI Security Agent Report"
+              echo
+              cat "$report_path"
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "## AI Security Agent Report"
+              echo
+              echo "No report file was generated."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Comment report on pull request
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const reportPath = 'ai-security-artifacts/output/ai-security-report.md';
+            const body = fs.existsSync(reportPath)
+              ? fs.readFileSync(reportPath, 'utf8')
+              : '<!-- ai-security-agent -->\n# AI Security Agent Report\n\nNo report was generated.';
+
+            const { owner, repo } = context.repo;
+            const prs = context.payload.workflow_run?.pull_requests || [];
+            if (!prs.length) {
+              core.info('No pull request associated with this workflow_run; skipping PR comment.');
+              return;
+            }
+
+            const issue_number = prs[0].number;
+            const marker = '<!-- ai-security-agent -->';
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+
+            const existing = comments.find(
+              (c) => c.user?.type === 'Bot' && c.body?.includes(marker),
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body,
+              });
+            }
+
+      - name: Enforce security gate
+        shell: bash
+        run: |
+          if [ "${{ steps.run_agent.outputs.exit_code }}" != "0" ]; then
+            echo "AI Security Agent blocked this merge due to high/critical risk findings."
+            exit 1
+          fi
+
+          echo "AI Security Agent approved this change."

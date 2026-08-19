@@ -31,9 +31,11 @@
         </button>
       </div>
     </div>
-    <button type="submit" class="form-submit" [disabled]="signInForm.invalid">
-      Sign In
-    </button>
+    <app-action-button
+      buttonType="submit"
+      [config]="signInActionConfig"
+      [isLoading]="signInLoading"
+    ></app-action-button>
     <div *ngIf="loginError" class="form-error">{{ loginError }}</div>
   </form>
   <div class="form-links">

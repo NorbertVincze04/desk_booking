@@ -1,0 +1,37 @@
+name: CD
+
+permissions:
+  contents: write
+
+on:
+  workflow_run:
+    workflows:
+      - Security AI Gate
+    types:
+      - completed
+
+jobs:
+  promote-to-main:
+    name: Promote dev → main
+    runs-on: ubuntu-latest
+    # only run when Security AI Gate passed for a direct push on dev (never PR-triggered runs)
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'dev' && github.event.workflow_run.event == 'push' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge dev into main
+        run: |
+          git fetch origin main dev
+          git checkout -B main origin/main
+          git merge --no-ff --no-edit origin/dev
+          git push origin main

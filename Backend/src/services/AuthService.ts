@@ -16,7 +16,7 @@ export class AuthService {
       throw new Error("An account with that email already exists.");
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(password, 10); // 2^n rounds of hashing, 10 is standard
 
     const user = await UserRepository.create(
       fullName,
@@ -51,18 +51,18 @@ export class AuthService {
     }
 
     let isTempPassword = false;
-    let passwordValid = false;
 
     if (user.temp_password_hash) {
+      // temporary password is active — only allow login with it
       isTempPassword = await bcrypt.compare(password, user.temp_password_hash);
-    }
-
-    if (!isTempPassword) {
-      passwordValid = await bcrypt.compare(password, user.password_hash);
-    }
-
-    if (!isTempPassword && !passwordValid) {
-      throw new Error("Email or password is incorrect.");
+      if (!isTempPassword) {
+        throw new Error("Email or password is incorrect.");
+      }
+    } else {
+      const passwordValid = await bcrypt.compare(password, user.password_hash);
+      if (!passwordValid) {
+        throw new Error("Email or password is incorrect.");
+      }
     }
 
     if (isTempPassword) {

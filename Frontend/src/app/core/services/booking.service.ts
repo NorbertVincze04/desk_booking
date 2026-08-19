@@ -68,7 +68,7 @@ export class BookingService {
   }
 
   loadBookings() {
-    this.execute({ table_name: 'BOOKINGS_TABLE', operation: 'READ' })
+    this.execute({ operation: 'READ' })
       .pipe(
         map((response: any) => {
           if (response.success) {
@@ -117,7 +117,6 @@ export class BookingService {
 
   addBooking(booking: Booking): Observable<boolean> {
     const command = {
-      table_name: 'BOOKINGS_TABLE',
       operation: 'CREATE',
       data: {
         user_name: booking.user,
@@ -172,7 +171,6 @@ export class BookingService {
     }
 
     const command = {
-      table_name: 'BOOKINGS_TABLE',
       operation: 'DELETE',
       data: { id: bookingToRemove.id },
     };
@@ -213,7 +211,6 @@ export class BookingService {
 
   updateBooking(booking: Booking): Observable<boolean> {
     const command = {
-      table_name: 'BOOKINGS_TABLE',
       operation: 'UPDATE',
       data: {
         id: booking.id,

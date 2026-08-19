@@ -4,6 +4,6 @@ import { authMiddleware } from "../middleware/auth.middleware.ts";
 
 export const bookingRouter = Router();
 
-bookingRouter.post("/", authMiddleware, (req, res) =>
-  BookingController.handleBookingCommand(req, res),
+bookingRouter.post("/", authMiddleware, (req, res, next) =>
+  BookingController.handleBookingCommand(req, res).catch(next),
 );

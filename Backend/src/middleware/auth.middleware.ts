@@ -69,8 +69,12 @@ export function adminMiddleware(
   next();
 }
 
+interface CustomError extends Error {
+  status?: number;
+}
+
 export function errorHandler(
-  err: any,
+  err: CustomError,
   req: Request,
   res: Response,
   next: NextFunction,

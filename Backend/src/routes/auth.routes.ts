@@ -7,18 +7,22 @@ import {
 
 export const authRouter = Router();
 
-authRouter.post("/register", (req, res) => AuthController.register(req, res));
-
-authRouter.post("/login", (req, res) => AuthController.login(req, res));
-
-authRouter.post("/reset-password", (req, res) =>
-  AuthController.resetPassword(req, res),
+authRouter.post("/register", (req, res, next) =>
+  AuthController.register(req, res).catch(next),
 );
 
-authRouter.post("/temp-password", (req, res) =>
-  AuthController.generateTempPassword(req, res),
+authRouter.post("/login", (req, res, next) =>
+  AuthController.login(req, res).catch(next),
 );
 
-authRouter.get("/users", authMiddleware, adminMiddleware, (req, res) =>
-  AuthController.getUsers(req, res),
+authRouter.post("/reset-password", (req, res, next) =>
+  AuthController.resetPassword(req, res).catch(next),
+);
+
+authRouter.post("/temp-password", (req, res, next) =>
+  AuthController.generateTempPassword(req, res).catch(next),
+);
+
+authRouter.get("/users", authMiddleware, adminMiddleware, (req, res, next) =>
+  AuthController.getUsers(req, res).catch(next),
 );

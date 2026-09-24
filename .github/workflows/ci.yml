@@ -8,44 +8,12 @@ on:
   # workflow_dispatch: # allow manual triggering of the workflow
 
 jobs:
-  # frontend-build:
-  #   runs-on: ubuntu-latest
-
-  #   defaults:
-  #     run:
-  #       working-directory: Frontend
-
-  #   steps:
-  #     - uses: actions/checkout@v4
-
-  #     - name: Setup Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: 18
-  #         cache: "npm"
-  #         cache-dependency-path: Frontend/package-lock.json
-
-  #     - name: Install dependencies
-  #       run: npm ci
-
-  #     - name: Run tests
-  #       run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
-
-  #     - name: Build application
-  #       run: npm run build
-
-  #     - name: Upload Frontend Build Artifact
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: frontend-build
-  #         path: Frontend/dist
-
-  backend-build:
+  frontend-build:
     runs-on: ubuntu-latest
 
     defaults:
       run:
-        working-directory: Backend
+        working-directory: Frontend
 
     steps:
       - uses: actions/checkout@v4
@@ -55,22 +23,54 @@ jobs:
         with:
           node-version: 18
           cache: "npm"
-          cache-dependency-path: Backend/package-lock.json
+          cache-dependency-path: Frontend/package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
       - name: Run tests
-        run: npm run test:coverage
+        run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
 
       - name: Build application
         run: npm run build
 
-      - name: Upload Backend Artifact
+      - name: Upload Frontend Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: backend-build
-          path: |
-            Backend/dist
-            Backend/package.json
-            Backend/package-lock.json
+          name: frontend-build
+          path: Frontend/dist
+
+  # backend-build:
+  #   runs-on: ubuntu-latest
+
+  #   defaults:
+  #     run:
+  #       working-directory: Backend
+
+  #   steps:
+  #     - uses: actions/checkout@v4
+
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 18
+  #         cache: "npm"
+  #         cache-dependency-path: Backend/package-lock.json
+
+  #     - name: Install dependencies
+  #       run: npm ci
+
+  #     - name: Run tests
+  #       run: npm run test:coverage
+
+  #     - name: Build application
+  #       run: npm run build
+
+  #     - name: Upload Backend Artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: backend-build
+  #         path: |
+  #           Backend/dist
+  #           Backend/package.json
+  #           Backend/package-lock.json

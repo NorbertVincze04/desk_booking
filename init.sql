@@ -17,15 +17,16 @@ CREATE TABLE IF NOT EXISTS "ico-env".users (
 -- Create bookings table
 CREATE TABLE IF NOT EXISTS "ico-env".bookings (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES "ico-env".users(id) ON DELETE CASCADE,
-    desk_id VARCHAR(100) NOT NULL,
+    user_name VARCHAR(255) NOT NULL,
     booking_date DATE NOT NULL,
+    booking_desk VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(desk_id, booking_date)
+    UNIQUE(user_name, booking_date, booking_desk)
 );
 
 -- Create indexes
 CREATE INDEX IF NOT EXISTS idx_users_email ON "ico-env".users(email);
-CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON "ico-env".bookings(user_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_user_name ON "ico-env".bookings(user_name);
 CREATE INDEX IF NOT EXISTS idx_bookings_date ON "ico-env".bookings(booking_date);
+CREATE INDEX IF NOT EXISTS idx_bookings_desk ON "ico-env".bookings(booking_desk);

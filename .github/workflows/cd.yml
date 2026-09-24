@@ -6,7 +6,7 @@ permissions:
 on:
   workflow_run:
     workflows:
-      - Security AI Gate
+      - Security AI Agent
     types:
       - completed
 

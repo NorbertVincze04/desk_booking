@@ -84,7 +84,8 @@ export async function run() {
       ],
       [
         "human",
-        `Here are the security scan results:\n\`\`\`json\n${context}\n\`\`\``,
+        // `Here are the security scan results:\n\`\`\`json\n${context}\n\`\`\``,
+        "say only hello world",
       ],
     ]);
   } catch (err) {

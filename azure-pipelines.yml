@@ -1,0 +1,42 @@
+trigger:
+  branches:
+    include:
+      - dev
+
+pr:
+  branches:
+    include:
+      - dev
+
+# Build stage only: checkout + publish the ai-agent source as a build artifact.
+# Runs on a Microsoft-hosted agent since it doesn't need Bosch network access -
+# the actual `npm ci` / `node index.js` run happens in the release pipeline
+# (azure-release-pipeline.yml), which deploys the downloaded artifact to the
+# CLJVM00485 Environment resource (the only place with the required network
+# access, and the only agent this project currently has permission to use).
+pool:
+  vmImage: "windows-latest"
+
+steps:
+  - checkout: self
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish ai-agent artifact"
+    inputs:
+      PathtoPublish: "Backend/security-ai-agent"
+      ArtifactName: "drop"
+      publishLocation: "Container"
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish backend app artifact"
+    inputs:
+      PathtoPublish: "Backend"
+      ArtifactName: "backend-app"
+      publishLocation: "Container"
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish frontend app artifact"
+    inputs:
+      PathtoPublish: "Frontend"
+      ArtifactName: "frontend-app"
+      publishLocation: "Container"

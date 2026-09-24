@@ -1,4 +1,5 @@
 export interface BookingCommandRequest {
+  table_name: string;
   operation: "READ" | "CREATE" | "UPDATE" | "DELETE";
   data?: {
     id?: number;
@@ -14,13 +15,10 @@ export function validateBookingCommand(data: any): {
 } {
   const errors: string[] = [];
 
-<<<<<<< HEAD
-=======
   if (!data.table_name || data.table_name !== "BOOKINGS_TABLE") {
     errors.push("wrong table name");
   }
 
->>>>>>> f3fb716ba32bb359a2f79b2df8129ac1fc64d985
   if (
     !data.operation ||
     !["READ", "CREATE", "UPDATE", "DELETE"].includes(data.operation)

@@ -1,29 +1,24 @@
-# Build stage
-FROM node:18-alpine AS builder
+FROM node:18-slim
+
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+ARG NO_PROXY
 
 WORKDIR /app
 
-COPY package*.json ./
-COPY tsconfig.json ./
+COPY package.json package-lock.json ./
 
-RUN npm ci
+RUN sed -i \
+    -e 's|https://artifactory.boschdevcloud.com/artifactory/api/npm/cs-npmjs-remote/||g' \
+    package-lock.json
 
-COPY src ./src
+RUN npm ci --legacy-peer-deps --no-audit
 
-RUN npm run build
+COPY . .
 
-# Runtime stage
-FROM node:18-alpine
-
-WORKDIR /app
-
-ENV NODE_ENV=production
-
-COPY package*.json ./
-RUN npm ci --omit=dev
-
-COPY --from=builder /app/dist ./dist
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 EXPOSE 3000
 
-CMD ["node", "dist/server.js"]
+ENTRYPOINT ["/entrypoint.sh"]

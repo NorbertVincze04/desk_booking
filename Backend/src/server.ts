@@ -1,7 +1,6 @@
 import { PORT } from "./config/config.ts";
 import { createApp } from "./app.ts";
 import { seedAdminUser } from "./utils/seedAdminUser.ts";
-import { Tunnel } from "./tunnel.ts";
 import { BookingService } from "./services/BookingService.ts";
 
 // call function from app.ts to create app
@@ -20,19 +19,9 @@ async function cleanupPastBookings() {
   }
 }
 
-// Initialize tunnel and start server
+// Start server
 async function startServer() {
   try {
-    // Open tunnel only when explicitly enabled (e.g. not needed when DB is directly reachable)
-    if (process.env.ENABLE_TUNNEL === "true") {
-      const tunnel = new Tunnel();
-      console.log("Opening database tunnel...");
-      await tunnel.open();
-      console.log("Tunnel opened successfully");
-    } else {
-      console.log("Tunnel disabled (ENABLE_TUNNEL != true), skipping...");
-    }
-
     // create admin user if not exists
     try {
       await seedAdminUser();

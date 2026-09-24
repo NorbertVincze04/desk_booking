@@ -1,25 +1,24 @@
 import "dotenv/config";
 import { ProxyAgent } from "undici";
-import { AzureChatOpenAI } from "@langchain/openai";
+import { ChatOpenAI } from "@langchain/openai";
 
 export const proxyUrl =
   process.env.https_proxy ||
   process.env.HTTPS_PROXY ||
   process.env.http_proxy ||
   process.env.HTTP_PROXY;
-export const azureOpenAIEndpoint = "https://aoai-farm.bosch-temp.com/api";
 const proxyAgent = proxyUrl ? new ProxyAgent(proxyUrl) : undefined;
 
-export const llm = new AzureChatOpenAI({
-  apiKey: "dummy",
-  azureOpenAIApiDeploymentName: "gpt-5-nano-2025-08-07",
-  azureOpenAIEndpoint,
+// Open-source model (OpenAI's Apache-2.0-licensed gpt-oss), served through
+// OpenRouter's OpenAI-compatible API instead of the Bosch/Azure LLM farm.
+export const modelEndpoint = "https://openrouter.ai/api/v1";
+export const modelName = process.env.AI_MODEL || "openai/gpt-oss-120b";
+
+export const llm = new ChatOpenAI({
+  apiKey: process.env.OPENROUTER_API_KEY,
+  model: modelName,
   configuration: {
-    defaultHeaders: {
-      "genaiplatform-farm-subscription-key":
-        process.env.GENAIPLATFORM_FARM_SUBSCRIPTION_KEY,
-    },
+    baseURL: modelEndpoint,
     fetchOptions: proxyAgent ? { dispatcher: proxyAgent } : undefined,
   },
-  openAIApiVersion: "2024-08-01-preview",
 });

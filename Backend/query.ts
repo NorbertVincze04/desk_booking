@@ -1,30 +1,5 @@
 import "dotenv/config";
-import { existsSync, readFileSync } from "node:fs";
 import { Client } from "pg";
-import { Tunnel } from "./src/tunnel.ts";
-
-type SslConfig = {
-  ca?: string;
-  servername?: string;
-  rejectUnauthorized: boolean;
-};
-
-function buildSsl(): SslConfig {
-  // The DB requires SSL. Because we connect through a localhost tunnel, the
-  // server certificate's name is the real DB host, not localhost. Two options:
-  //  (A) strict: verify against the Bosch CA and force SNI/servername to the
-  //      real host (set PGCA + PGSERVERNAME in .env, run `npm run ca` once).
-  //  (B) simple: skip verification (rejectUnauthorized:false).
-  if (process.env.PGCA && existsSync(process.env.PGCA)) {
-    return {
-      ca: readFileSync(process.env.PGCA, "utf8"),
-      servername: process.env.PGSERVERNAME,
-      rejectUnauthorized: true,
-    };
-  }
-
-  return { rejectUnauthorized: false };
-}
 
 function assertReadOnly(sql: string) {
   const first = sql.trim().split(/\s+/)[0]?.toLowerCase();
@@ -49,19 +24,12 @@ async function main() {
 
   assertReadOnly(sql);
 
-  // Open tunnel before connecting to database
-  const tunnel = new Tunnel();
-  console.log("Opening database tunnel...");
-  await tunnel.open();
-  console.log("Tunnel opened successfully");
-
   const client = new Client({
-    host: process.env.PGHOST || "127.0.0.1",
-    port: Number(process.env.PGPORT || 15432),
-    database: process.env.PGDATABASE,
-    user: process.env.PGUSER,
-    password: process.env.PGPASSWORD,
-    ssl: buildSsl(),
+    host: process.env.DB_HOST || "localhost",
+    port: Number(process.env.DB_PORT || 5432),
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
     connectionTimeoutMillis: 15000,
   });
 
@@ -70,7 +38,6 @@ async function main() {
   console.table(res.rows);
   console.log(`${res.rowCount} row(s).`);
   await client.end();
-  await tunnel.close();
 }
 
 main().catch((err: unknown) => {
@@ -79,7 +46,7 @@ main().catch((err: unknown) => {
   console.error("Query failed:", message);
   if (/ECONNREFUSED|timeout/i.test(message)) {
     console.error(
-      "\nMake sure you have proper network access and credentials configured in .env",
+      "\nMake sure your local Postgres server is running and credentials are configured in .env",
     );
   }
   process.exit(1);

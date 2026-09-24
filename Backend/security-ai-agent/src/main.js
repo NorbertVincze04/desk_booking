@@ -7,10 +7,10 @@ import {
   resolvePaths,
   writeFileUtf8,
 } from "./files.js";
-import { azureOpenAIEndpoint, llm, proxyUrl } from "./llm.js";
+import { modelEndpoint, llm, proxyUrl } from "./llm.js";
 
 function buildConnectionDiagnostics() {
-  const endpointHost = new URL(azureOpenAIEndpoint).host;
+  const endpointHost = new URL(modelEndpoint).host;
   const diagnostics = [
     `Endpoint host: ${endpointHost}`,
     `Proxy configured: ${proxyUrl ? "yes" : "no"}`,

@@ -14,10 +14,10 @@ RUN sed -i \
 
 RUN npm ci --legacy-peer-deps --no-audit
 
-COPY . .
-
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
+COPY . .
 
 EXPOSE 3000
 

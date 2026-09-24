@@ -13,12 +13,12 @@ RUN sed -i \
     -e 's|https://artifactory.boschdevcloud.com/artifactory/api/npm/cs-npmjs-remote/||g' \
     package-lock.json
 
-RUN npm ci --legacy-peer-deps --no-audit 
-
-COPY . .
+RUN npm ci --legacy-peer-deps --no-audit
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
+COPY . .
 
 EXPOSE 4200
 

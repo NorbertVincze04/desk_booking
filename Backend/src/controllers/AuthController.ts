@@ -11,6 +11,7 @@ import {
   type TempPasswordRequest,
 } from "../validators/auth.validator.ts";
 
+// Controller for handling authentication-related requests (register, login, reset password, etc.)
 export class AuthController {
   static async register(
     req: Request<{}, {}, RegisterRequest>,
